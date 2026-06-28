@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tn_construction_quality_check_search" model="ir.ui.view">
+        <field name="name">tn.construction.quality.check.search</field>
+        <field name="model">tn.construction.quality.check</field>
+        <field name="arch" type="xml">
+            <search string="Quality Checks">
+                <field name="name"/>
+                <field name="subcontract_id"/>
+                <field name="material_request_id"/>
+                <field name="remark"/>
+                <filter name="department_approval" string="Department Approval" domain="[('state', '=', 'department_approval')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_status" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_subcontract" string="Subcontract" context="{'group_by': 'subcontract_id'}"/>
+                    <filter name="group_material_request" string="Material Request" context="{'group_by': 'material_request_id'}"/>
+                </group>
+                <searchpanel>
+                    <field name="state" string="Status"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_quality_check_equipment_list" model="ir.ui.view">
+        <field name="name">tn.construction.quality.check.equipment.list</field>
+        <field name="model">tn.construction.quality.check</field>
+        <field name="arch" type="xml">
+            <list string="Equipments Quality Check" decoration-info="state == 'department_approval'" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="subcontract_id" string="Subcontract"/>
+                <field name="date"/>
+                <field name="qty"/>
+                <field name="percentage"/>
+                <field name="amount"/>
+                <field name="remark"/>
+                <field name="state" string="Quality Check Status" widget="badge"
+                       decoration-info="state == 'department_approval'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_quality_check_labour_list" model="ir.ui.view">
+        <field name="name">tn.construction.quality.check.labour.list</field>
+        <field name="model">tn.construction.quality.check</field>
+        <field name="arch" type="xml">
+            <list string="Labours Quality Check" decoration-info="state == 'department_approval'" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="subcontract_id" string="Subcontract"/>
+                <field name="date"/>
+                <field name="hours"/>
+                <field name="percentage"/>
+                <field name="amount"/>
+                <field name="remark"/>
+                <field name="state" string="Quality Check Status" widget="badge"
+                       decoration-info="state == 'department_approval'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_quality_check_overhead_list" model="ir.ui.view">
+        <field name="name">tn.construction.quality.check.overhead.list</field>
+        <field name="model">tn.construction.quality.check</field>
+        <field name="arch" type="xml">
+            <list string="Overheads Quality Check" decoration-info="state == 'department_approval'" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="subcontract_id" string="Subcontract"/>
+                <field name="date"/>
+                <field name="qty"/>
+                <field name="percentage"/>
+                <field name="amount"/>
+                <field name="remark"/>
+                <field name="state" string="Quality Check Status" widget="badge"
+                       decoration-info="state == 'department_approval'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_quality_check_material_list" model="ir.ui.view">
+        <field name="name">tn.construction.quality.check.material.list</field>
+        <field name="model">tn.construction.quality.check</field>
+        <field name="arch" type="xml">
+            <list string="Materials Quality Check" decoration-info="state == 'department_approval'" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="material_request_id"/>
+                <field name="date"/>
+                <field name="qty"/>
+                <field name="amount"/>
+                <field name="remark"/>
+                <field name="state" string="Quality Check Status" widget="badge"
+                       decoration-info="state == 'department_approval'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_quality_check_form" model="ir.ui.view">
+        <field name="name">tn.construction.quality.check.form</field>
+        <field name="model">tn.construction.quality.check</field>
+        <field name="arch" type="xml">
+            <form string="Quality Check" class="tn_construction_project_form">
+                <header>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary" invisible="state == 'approved'"/>
+                    <button name="action_reject" type="object" string="Reject" class="btn-secondary" invisible="state == 'rejected'"/>
+                    <button name="action_submit_department" type="object" string="Department Approval" invisible="state == 'department_approval'"/>
+                    <button name="action_reset_draft" type="object" string="Draft" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,department_approval,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="subcontract_id" invisible="check_kind == 'material'"/>
+                            <field name="material_request_id" invisible="check_kind != 'material'"/>
+                            <field name="company_id"/>
+                            <field name="qty" invisible="check_kind == 'labour'"/>
+                            <field name="hours" invisible="check_kind != 'labour'"/>
+                            <field name="percentage"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="amount"/>
+                            <field name="retention_percent" invisible="check_kind == 'material'"/>
+                            <field name="retention_amount" invisible="check_kind == 'material'"/>
+                            <field name="total_amount"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="remark"/>
+                        <field name="check_kind" invisible="1"/>
+                        <field name="subcontract_bill_line_id" invisible="1"/>
+                        <field name="material_request_line_id" invisible="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_quality_check_equipment" model="ir.actions.act_window">
+        <field name="name">Equipments Quality Check</field>
+        <field name="res_model">tn.construction.quality.check</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('check_kind', '=', 'equipment')]</field>
+        <field name="context">{'default_check_kind': 'equipment', 'search_default_department_approval': 1}</field>
+        <field name="search_view_id" ref="view_tn_construction_quality_check_search"/>
+        <field name="views" eval="[(ref('view_tn_construction_quality_check_equipment_list'), 'list'), (ref('view_tn_construction_quality_check_form'), 'form')]"/>
+    </record>
+
+    <record id="action_tn_construction_quality_check_labour" model="ir.actions.act_window">
+        <field name="name">Labours Quality Check</field>
+        <field name="res_model">tn.construction.quality.check</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('check_kind', '=', 'labour')]</field>
+        <field name="context">{'default_check_kind': 'labour', 'search_default_department_approval': 1}</field>
+        <field name="search_view_id" ref="view_tn_construction_quality_check_search"/>
+        <field name="views" eval="[(ref('view_tn_construction_quality_check_labour_list'), 'list'), (ref('view_tn_construction_quality_check_form'), 'form')]"/>
+    </record>
+
+    <record id="action_tn_construction_quality_check_overhead" model="ir.actions.act_window">
+        <field name="name">Overheads Quality Check</field>
+        <field name="res_model">tn.construction.quality.check</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('check_kind', '=', 'overhead')]</field>
+        <field name="context">{'default_check_kind': 'overhead', 'search_default_department_approval': 1}</field>
+        <field name="search_view_id" ref="view_tn_construction_quality_check_search"/>
+        <field name="views" eval="[(ref('view_tn_construction_quality_check_overhead_list'), 'list'), (ref('view_tn_construction_quality_check_form'), 'form')]"/>
+    </record>
+
+    <record id="action_tn_construction_quality_check_material" model="ir.actions.act_window">
+        <field name="name">Materials Quality Check</field>
+        <field name="res_model">tn.construction.quality.check</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('check_kind', '=', 'material')]</field>
+        <field name="context">{'default_check_kind': 'material', 'search_default_department_approval': 1}</field>
+        <field name="search_view_id" ref="view_tn_construction_quality_check_search"/>
+        <field name="views" eval="[(ref('view_tn_construction_quality_check_material_list'), 'list'), (ref('view_tn_construction_quality_check_form'), 'form')]"/>
+    </record>
+</odoo>

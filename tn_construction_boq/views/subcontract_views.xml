@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tn_construction_subcontract_search" model="ir.ui.view">
+        <field name="name">tn.construction.subcontract.search</field>
+        <field name="model">tn.construction.subcontract</field>
+        <field name="arch" type="xml">
+            <search string="Subcontracts">
+                <field name="sequence_code"/>
+                <field name="title"/>
+                <field name="work_order_id"/>
+                <field name="vendor_id"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_type" string="Type" context="{'group_by': 'procurement_type'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_work_order" string="Work Order" context="{'group_by': 'work_order_id'}"/>
+                </group>
+                <searchpanel>
+                    <field name="procurement_type" string="Type"/>
+                    <field name="state" string="Status"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_equipment_subcontract_list" model="ir.ui.view">
+        <field name="name">tn.construction.equipment.subcontract.list</field>
+        <field name="model">tn.construction.subcontract</field>
+        <field name="arch" type="xml">
+            <list string="Equipment Subcontract" decoration-warning="state == 'in_progress'" decoration-success="state == 'done'">
+                <field name="sequence_code"/>
+                <field name="title"/>
+                <field name="company_id"/>
+                <field name="work_order_id"/>
+                <field name="vendor_id"/>
+                <field name="equipment_type" string="Type"/>
+                <field name="qty"/>
+                <field name="estimation_cost"/>
+                <field name="total_cost"/>
+                <field name="state" widget="badge"/>
+                <field name="completed_bill_percent" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_labour_subcontract_list" model="ir.ui.view">
+        <field name="name">tn.construction.labour.subcontract.list</field>
+        <field name="model">tn.construction.subcontract</field>
+        <field name="arch" type="xml">
+            <list string="Labour Subcontract" decoration-warning="state == 'in_progress'" decoration-success="state == 'done'">
+                <field name="sequence_code"/>
+                <field name="title"/>
+                <field name="company_id"/>
+                <field name="work_order_id"/>
+                <field name="vendor_id" string="Contractor"/>
+                <field name="hours"/>
+                <field name="cost_hour"/>
+                <field name="total_cost"/>
+                <field name="state" widget="badge"/>
+                <field name="completed_bill_percent" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_overhead_subcontract_list" model="ir.ui.view">
+        <field name="name">tn.construction.overhead.subcontract.list</field>
+        <field name="model">tn.construction.subcontract</field>
+        <field name="arch" type="xml">
+            <list string="Overhead Subcontract" decoration-warning="state == 'in_progress'" decoration-success="state == 'done'">
+                <field name="sequence_code"/>
+                <field name="title"/>
+                <field name="company_id"/>
+                <field name="work_order_id"/>
+                <field name="vendor_id"/>
+                <field name="qty"/>
+                <field name="uom_id"/>
+                <field name="cost_unit"/>
+                <field name="total_cost"/>
+                <field name="state" widget="badge"/>
+                <field name="completed_bill_percent" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_subcontract_form" model="ir.ui.view">
+        <field name="name">tn.construction.subcontract.form</field>
+        <field name="model">tn.construction.subcontract</field>
+        <field name="arch" type="xml">
+            <form string="Subcontract" class="tn_construction_project_form">
+                <header>
+                    <button name="action_reset_draft" type="object" string="Draft" invisible="state == 'draft'"/>
+                    <button name="action_set_in_progress" type="object" string="In Progress" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_done" type="object" string="Done" class="btn-secondary" invisible="state == 'done'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="sequence_code" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <field name="procurement_type" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+                    <group>
+                        <field name="company_id"/>
+                        <field name="contract_kind" invisible="1"/>
+                    </group>
+                    <group string="Project Details">
+                        <group>
+                            <field name="project_id"/>
+                            <field name="sub_project_id"/>
+                            <field name="phase_id"/>
+                        </group>
+                        <group>
+                            <field name="work_order_id"/>
+                            <field name="task_id"/>
+                        </group>
+                    </group>
+                    <group string="Equipment Details" invisible="contract_kind != 'equipment'">
+                        <group>
+                            <field name="title"/>
+                            <field name="product_id" string="Equipment"/>
+                            <field name="work_type"/>
+                            <field name="estimation_cost"/>
+                        </group>
+                        <group>
+                            <field name="vendor_id"/>
+                            <field name="equipment_type"/>
+                            <field name="work_sub_type"/>
+                        </group>
+                    </group>
+                    <group string="Labour Details" invisible="contract_kind != 'labour'">
+                        <group>
+                            <field name="title"/>
+                            <field name="product_id"/>
+                            <field name="cost_hour"/>
+                        </group>
+                        <group>
+                            <field name="vendor_id" string="Contractor"/>
+                            <field name="work_type"/>
+                            <field name="work_sub_type"/>
+                        </group>
+                    </group>
+                    <group string="Overhead Details" invisible="contract_kind != 'overhead'">
+                        <group>
+                            <field name="title"/>
+                            <field name="product_id"/>
+                            <field name="work_type"/>
+                            <field name="cost_unit"/>
+                        </group>
+                        <group>
+                            <field name="vendor_id"/>
+                            <field name="uom_id"/>
+                            <field name="work_sub_type"/>
+                        </group>
+                    </group>
+                    <group string="Calculation">
+                        <group>
+                            <field name="qty" invisible="contract_kind == 'labour'"/>
+                            <field name="hours" invisible="contract_kind != 'labour'"/>
+                            <field name="total_cost"/>
+                        </group>
+                        <group>
+                            <field name="remaining_qty" invisible="contract_kind == 'labour'"/>
+                            <field name="remaining_hours" invisible="contract_kind != 'labour'"/>
+                            <field name="remaining_amount"/>
+                            <field name="completed_bill_percent" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="bills_po" string="Subcontract Bills/PO">
+                            <field name="bill_line_ids">
+                                <list editable="bottom">
+                                    <field name="date"/>
+                                    <field name="qty" invisible="parent.contract_kind == 'labour'"/>
+                                    <field name="hours" invisible="parent.contract_kind != 'labour'"/>
+                                    <field name="percentage"/>
+                                    <field name="amount"/>
+                                    <field name="retention_percent"/>
+                                    <field name="retention_amount"/>
+                                    <field name="total_amount"/>
+                                    <field name="remark"/>
+                                    <field name="bill_id"/>
+                                    <field name="payment_state" widget="badge"/>
+                                    <field name="quality_check"/>
+                                    <button name="action_approve" type="object" string="Approve" class="btn-success"/>
+                                    <button name="action_reject" type="object" string="Reject" class="btn-danger"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_equipment_subcontract" model="ir.actions.act_window">
+        <field name="name">Equipment Subcontract</field>
+        <field name="res_model">tn.construction.subcontract</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('contract_kind', '=', 'equipment')]</field>
+        <field name="context">{'default_contract_kind': 'equipment', 'search_default_in_progress': 1}</field>
+        <field name="search_view_id" ref="view_tn_construction_subcontract_search"/>
+        <field name="views" eval="[(ref('view_tn_construction_equipment_subcontract_list'), 'list'), (ref('view_tn_construction_subcontract_form'), 'form')]"/>
+    </record>
+
+    <record id="action_tn_construction_labour_subcontract" model="ir.actions.act_window">
+        <field name="name">Labour Subcontract</field>
+        <field name="res_model">tn.construction.subcontract</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('contract_kind', '=', 'labour')]</field>
+        <field name="context">{'default_contract_kind': 'labour', 'search_default_in_progress': 1}</field>
+        <field name="search_view_id" ref="view_tn_construction_subcontract_search"/>
+        <field name="views" eval="[(ref('view_tn_construction_labour_subcontract_list'), 'list'), (ref('view_tn_construction_subcontract_form'), 'form')]"/>
+    </record>
+
+    <record id="action_tn_construction_overhead_subcontract" model="ir.actions.act_window">
+        <field name="name">Overhead Subcontract</field>
+        <field name="res_model">tn.construction.subcontract</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('contract_kind', '=', 'overhead')]</field>
+        <field name="context">{'default_contract_kind': 'overhead', 'search_default_in_progress': 1}</field>
+        <field name="search_view_id" ref="view_tn_construction_subcontract_search"/>
+        <field name="views" eval="[(ref('view_tn_construction_overhead_subcontract_list'), 'list'), (ref('view_tn_construction_subcontract_form'), 'form')]"/>
+    </record>
+</odoo>

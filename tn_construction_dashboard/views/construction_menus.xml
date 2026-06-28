@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_construction_dashboard" model="ir.actions.client">
+        <field name="name">Construction Dashboard</field>
+        <field name="tag">tn_construction_dashboard.main</field>
+    </record>
+
+    <record id="action_construction_projects" model="ir.actions.act_window">
+        <field name="name">Projects</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="project.view_project_project_filter"/>
+        <field name="context">{'display_milestone_deadline': True}</field>
+        <field name="domain">[]</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem
+        id="menu_construction_root"
+        name="Construction"
+        action="action_construction_dashboard"
+        groups="project.group_project_user"
+        web_icon="tn_construction_dashboard,static/description/icon.png"
+        sequence="68"/>
+
+    <menuitem
+        id="menu_construction_dashboard"
+        name="Dashboard"
+        parent="menu_construction_root"
+        action="action_construction_dashboard"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_construction_projects"
+        name="Projects"
+        parent="menu_construction_root"
+        action="action_construction_projects"
+        sequence="2"/>
+
+    <menuitem
+        id="menu_construction_sub_projects"
+        name="Sub Projects"
+        parent="menu_construction_root"
+        action="tn_construction_boq.action_tn_construction_sub_project"
+        sequence="3"/>
+
+    <menuitem
+        id="menu_construction_boq"
+        name="Budgets"
+        parent="menu_construction_root"
+        action="tn_construction_boq.action_tn_construction_budget"
+        sequence="4"/>
+
+    <menuitem
+        id="menu_construction_rate_analysis"
+        name="Rate Analysis"
+        parent="menu_construction_root"
+        action="tn_construction_boq.action_tn_construction_rate_analysis"
+        sequence="5"/>
+
+    <menuitem
+        id="menu_construction_executions"
+        name="Executions"
+        parent="menu_construction_root"
+        sequence="6"/>
+
+    <menuitem
+        id="menu_construction_execution_phases"
+        name="Project Phases (WBS)"
+        parent="menu_construction_executions"
+        action="tn_construction_boq.action_tn_construction_phase"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_construction_execution_work_orders"
+        name="Work Orders"
+        parent="menu_construction_executions"
+        action="tn_construction_boq.action_tn_construction_work_order"
+        sequence="2"/>
+
+    <menuitem
+        id="menu_construction_execution_material_requests"
+        name="Material Requests"
+        parent="menu_construction_executions"
+        action="tn_construction_boq.action_tn_construction_material_request"
+        sequence="3"/>
+
+    <menuitem
+        id="menu_construction_tasks"
+        name="Tasks"
+        parent="menu_construction_root"
+        action="tn_construction_boq.action_tn_construction_tasks"
+        sequence="7"/>
+
+    <menuitem
+        id="menu_construction_operations"
+        name="Operations"
+        parent="menu_construction_root"
+        sequence="8"/>
+
+    <record id="menu_construction_operations" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+
+    <menuitem
+        id="menu_construction_operation_internal_transfers"
+        name="Internal Transfers"
+        parent="menu_construction_operations"
+        action="tn_construction_boq.action_tn_construction_internal_transfer"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_construction_operation_scrap_orders"
+        name="Scrap Orders"
+        parent="menu_construction_operations"
+        action="tn_construction_boq.action_tn_construction_scrap_order"
+        sequence="2"/>
+
+    <menuitem
+        id="menu_construction_operation_delivery_orders"
+        name="Delivery Orders"
+        parent="menu_construction_operations"
+        action="stock.action_picking_tree_outgoing"
+        sequence="3"/>
+
+    <menuitem
+        id="menu_construction_contracts"
+        name="Contracts"
+        parent="menu_construction_root"
+        sequence="9"/>
+
+    <record id="menu_construction_contracts" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+
+    <menuitem
+        id="menu_construction_contract_equipments"
+        name="Equipments"
+        parent="menu_construction_contracts"
+        action="tn_construction_boq.action_tn_construction_equipment_subcontract"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_construction_contract_labours"
+        name="Labours"
+        parent="menu_construction_contracts"
+        action="tn_construction_boq.action_tn_construction_labour_subcontract"
+        sequence="2"/>
+
+    <menuitem
+        id="menu_construction_contract_overheads"
+        name="Overheads"
+        parent="menu_construction_contracts"
+        action="tn_construction_boq.action_tn_construction_overhead_subcontract"
+        sequence="3"/>
+
+    <menuitem
+        id="menu_construction_quality_checks"
+        name="Quality Checks"
+        parent="menu_construction_root"
+        sequence="10"/>
+
+    <record id="menu_construction_quality_checks" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+
+    <menuitem
+        id="menu_construction_quality_check_equipments"
+        name="Equipments"
+        parent="menu_construction_quality_checks"
+        action="tn_construction_boq.action_tn_construction_quality_check_equipment"
+        sequence="1"/>
+
+    <menuitem
+        id="menu_construction_quality_check_labours"
+        name="Labours"
+        parent="menu_construction_quality_checks"
+        action="tn_construction_boq.action_tn_construction_quality_check_labour"
+        sequence="2"/>
+
+    <menuitem
+        id="menu_construction_quality_check_overheads"
+        name="Overheads"
+        parent="menu_construction_quality_checks"
+        action="tn_construction_boq.action_tn_construction_quality_check_overhead"
+        sequence="3"/>
+
+    <menuitem
+        id="menu_construction_quality_check_materials"
+        name="Materials"
+        parent="menu_construction_quality_checks"
+        action="tn_construction_boq.action_tn_construction_quality_check_material"
+        sequence="4"/>
+
+    <menuitem
+        id="menu_construction_plus"
+        name="More"
+        parent="menu_construction_root"
+        sequence="11"/>
+
+    <record id="menu_construction_plus" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+
+    <menuitem id="menu_construction_plus_tools" name="Tools" parent="menu_construction_plus" sequence="1"/>
+    <record id="menu_construction_plus_tools" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+    <menuitem id="menu_construction_tool_materials" name="Materials" parent="menu_construction_plus_tools" action="tn_construction_boq.action_tn_construction_material_products" sequence="1"/>
+    <menuitem id="menu_construction_tool_equipments" name="Equipments" parent="menu_construction_plus_tools" action="tn_construction_boq.action_tn_construction_equipment_products" sequence="2"/>
+    <menuitem id="menu_construction_tool_labours" name="Labours" parent="menu_construction_plus_tools" action="tn_construction_boq.action_tn_construction_labour_products" sequence="3"/>
+    <menuitem id="menu_construction_tool_overheads" name="Overheads" parent="menu_construction_plus_tools" action="tn_construction_boq.action_tn_construction_overhead_products" sequence="4"/>
+    <menuitem id="menu_construction_tool_expenses" name="Expenses" parent="menu_construction_plus_tools" action="tn_construction_boq.action_tn_construction_expense_products" sequence="5"/>
+
+    <menuitem id="menu_construction_plus_configurations" name="Configurations" parent="menu_construction_plus" sequence="2"/>
+    <record id="menu_construction_plus_configurations" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+    <menuitem id="menu_construction_config_work_types_root" name="Work Types" parent="menu_construction_plus_configurations" sequence="1"/>
+    <record id="menu_construction_config_work_types_root" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+    <menuitem id="menu_construction_config_work_types" name="Work Types" parent="menu_construction_config_work_types_root" action="tn_construction_boq.action_tn_construction_work_type" sequence="1"/>
+    <menuitem id="menu_construction_config_work_sub_types" name="Work Sub Types" parent="menu_construction_config_work_types_root" action="tn_construction_boq.action_tn_construction_work_sub_type" sequence="2"/>
+
+    <menuitem id="menu_construction_plus_users" name="Users" parent="menu_construction_plus" sequence="3"/>
+    <record id="menu_construction_plus_users" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+    <menuitem id="menu_construction_user_employees" name="Employees" parent="menu_construction_plus_users" action="tn_construction_boq.action_tn_construction_employee" sequence="1"/>
+    <menuitem id="menu_construction_user_stakeholders" name="Stakeholders" parent="menu_construction_plus_users" action="tn_construction_boq.action_tn_construction_stakeholder" sequence="2"/>
+
+    <menuitem id="menu_construction_plus_tags" name="Tags" parent="menu_construction_plus" sequence="4"/>
+    <record id="menu_construction_plus_tags" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+    <menuitem id="menu_construction_tag_document_types" name="Document Types" parent="menu_construction_plus_tags" action="tn_construction_boq.action_tn_construction_document_type" sequence="1"/>
+    <menuitem id="menu_construction_tag_insurance_risks" name="Insurance Risks" parent="menu_construction_plus_tags" action="tn_construction_boq.action_tn_construction_insurance_risk" sequence="2"/>
+    <menuitem id="menu_construction_tag_employee_tags" name="Employee Tags" parent="menu_construction_plus_tags" action="tn_construction_boq.action_tn_construction_employee_tag" sequence="3"/>
+
+    <menuitem id="menu_construction_plus_templates" name="Templates" parent="menu_construction_plus" sequence="5"/>
+    <record id="menu_construction_plus_templates" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+    <menuitem id="menu_construction_template_rate_analysis" name="Rate Analysis Templates" parent="menu_construction_plus_templates" action="tn_construction_boq.action_tn_construction_rate_analysis_template" sequence="1"/>
+</odoo>

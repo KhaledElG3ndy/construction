@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="tn_construction_dashboard.SectionTitle">
+        <div class="tn_cd_section_title">
+            <h2 t-esc="title"/>
+        </div>
+    </t>
+
+    <t t-name="tn_construction_dashboard.MetricCard">
+        <button type="button" t-att-data-key="metric.key" t-attf-class="tn_cd_card tn_cd_tone_#{metric.tone}" t-on-click="onMetricClick">
+            <span class="tn_cd_icon"><i t-attf-class="fa #{metric.icon || 'fa-circle'}"/></span>
+            <span class="tn_cd_card_value" t-esc="metric.value || 0"/>
+            <span class="tn_cd_card_label" t-esc="metric.label"/>
+        </button>
+    </t>
+
+    <t t-name="tn_construction_dashboard.StatusRows">
+        <div class="tn_cd_status_rows">
+            <t t-foreach="items" t-as="status" t-key="status.key">
+                <button type="button"
+                        t-att-data-model="modelKey"
+                        t-att-data-state="status.key"
+                        t-att-disabled="status.empty ? true : undefined"
+                        t-on-click="onStatusClick">
+                    <span>
+                        <i t-att-style="'background:' + status.color"/>
+                        <t t-esc="status.label"/>
+                    </span>
+                    <strong t-esc="status.value"/>
+                </button>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="tn_construction_dashboard.ConstructionDashboard">
+        <div class="tn_cd" t-att-dir="isRTL ? 'rtl' : 'ltr'">
+            <t t-if="state.loading">
+                <div class="tn_cd_loading">
+                    <i class="fa fa-circle-o-notch fa-spin"/>
+                </div>
+            </t>
+            <t t-else="">
+                <header class="tn_cd_header">
+                    <div>
+                        <h1 t-esc="text.dashboard"/>
+                        <p t-esc="text.dashboardSubtitle"/>
+                    </div>
+                    <div class="tn_cd_header_tools">
+                        <span><i class="fa fa-calendar-o"/> <t t-esc="dateRangeLabel"/></span>
+                        <span><i class="fa fa-sliders"/> <t t-esc="text.filters"/></span>
+                    </div>
+                </header>
+
+                <section>
+                    <t t-call="tn_construction_dashboard.SectionTitle">
+                        <t t-set="title" t-value="text.quickAccess"/>
+                    </t>
+                    <div class="tn_cd_kpi_strip">
+                        <t t-foreach="quickMetrics" t-as="metric" t-key="metric.key">
+                            <button type="button" t-att-data-key="metric.key" t-attf-class="tn_cd_kpi tn_cd_tone_#{metric.tone}" t-on-click="onMetricClick">
+                                <span class="tn_cd_icon"><i t-attf-class="fa #{metric.icon}"/></span>
+                                <span class="tn_cd_kpi_main">
+                                    <span class="tn_cd_card_value" t-esc="metric.value || 0"/>
+                                    <span class="tn_cd_card_label" t-esc="metric.label"/>
+                                </span>
+                                <span class="tn_cd_kpi_footer">
+                                    <t t-esc="text.viewAll"/> <i class="fa fa-arrow-right"/>
+                                </span>
+                            </button>
+                        </t>
+                    </div>
+                </section>
+
+                <section>
+                    <t t-call="tn_construction_dashboard.SectionTitle">
+                        <t t-set="title" t-value="text.portfolio"/>
+                    </t>
+                    <div class="tn_cd_portfolio_grid">
+                        <article class="tn_cd_panel tn_cd_overview_panel">
+                            <h3><i class="fa fa-th-large"/> <t t-esc="text.portfolioOverview"/></h3>
+                            <div class="tn_cd_overview_rows">
+                                <t t-foreach="portfolioMetrics" t-as="metric" t-key="metric.key">
+                                    <button type="button" t-att-data-key="metric.key" t-on-click="onMetricClick">
+                                        <span><i t-attf-class="fa #{metric.icon}"/> <t t-esc="metric.label"/></span>
+                                        <strong t-esc="metric.value || 0"/>
+                                    </button>
+                                </t>
+                            </div>
+                            <div class="tn_cd_completion">
+                                <div>
+                                    <span t-esc="text.completion"/>
+                                    <strong t-esc="completionLabel"/>
+                                </div>
+                                <button type="button" data-key="completion" t-on-click="onMetricClick">
+                                    <span t-att-style="'width:' + (state.counts.completion || 0) + '%'"/>
+                                </button>
+                            </div>
+                        </article>
+
+                        <article class="tn_cd_panel">
+                            <h3><i class="fa fa-play"/> <t t-esc="text.executionStages"/></h3>
+                            <div class="tn_cd_stage_grid">
+                                <t t-foreach="stageMetrics" t-as="metric" t-key="metric.key">
+                                    <button type="button" t-att-data-key="metric.key" t-attf-class="tn_cd_stage_tile tn_cd_tone_#{metric.tone}" t-on-click="onMetricClick">
+                                        <span t-esc="metric.label"/>
+                                        <strong t-esc="metric.value || 0"/>
+                                    </button>
+                                </t>
+                            </div>
+                        </article>
+
+                        <article class="tn_cd_panel tn_cd_timeline_panel">
+                            <h3><i class="fa fa-calendar-o"/> <t t-esc="text.projectTimeline"/></h3>
+                            <div class="tn_cd_timeline_body">
+                                <div class="tn_cd_ring" t-att-style="'--progress:' + (state.timeline.progress || 0)">
+                                    <span><t t-esc="state.timeline.progress || 0"/>%</span>
+                                </div>
+                                <div>
+                                    <strong t-if="state.timeline.days">
+                                        <t t-esc="state.timeline.days"/> <t t-esc="text.days"/>
+                                    </strong>
+                                    <strong t-else="" t-esc="text.noData"/>
+                                    <small t-esc="state.timeline.label"/>
+                                    <p t-if="!state.timeline.days" t-esc="text.addSubProjects"/>
+                                </div>
+                            </div>
+                            <div class="tn_cd_status_links">
+                                <button type="button" data-key="subProjects" t-on-click="onMetricClick">
+                                    <span><i/> <t t-esc="text.subProjectStages"/></span>
+                                    <strong t-esc="state.counts.subProjects || 0"/>
+                                </button>
+                                <button type="button" data-key="workOrders" t-on-click="onMetricClick">
+                                    <span><i/> <t t-esc="text.workOrderStatus"/></span>
+                                    <strong t-esc="state.counts.openWorkOrders || 0"/>
+                                </button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section>
+                    <t t-call="tn_construction_dashboard.SectionTitle">
+                        <t t-set="title" t-value="text.operations"/>
+                    </t>
+                    <div class="tn_cd_operations_grid">
+                        <article class="tn_cd_panel tn_cd_operation_panel">
+                            <h3><i class="fa fa-archive"/> <t t-esc="text.materials"/></h3>
+                            <div class="tn_cd_operation_empty" t-if="!state.counts.materialRequests">
+                                <i class="fa fa-chain-broken"/>
+                                <span t-esc="text.noMaterialRequests"/>
+                            </div>
+                            <t t-else="">
+                                <t t-set="items" t-value="state.materialStatuses"/>
+                                <t t-set="modelKey" t-value="'materialRequests'"/>
+                                <t t-call="tn_construction_dashboard.StatusRows"/>
+                            </t>
+                            <div class="tn_cd_operation_footer">
+                                <span t-esc="text.materialRequestStatus"/>
+                                <button type="button" data-key="openMaterialRequests" t-on-click="onMetricClick">
+                                    <t t-esc="state.counts.openMaterialRequests || 0"/> <t t-esc="text.open"/>
+                                </button>
+                            </div>
+                        </article>
+
+                        <article class="tn_cd_panel tn_cd_operation_panel">
+                            <h3><i class="fa fa-bolt"/> <t t-esc="text.transfers"/></h3>
+                            <div class="tn_cd_operation_empty" t-if="!state.counts.internalTransfers">
+                                <i class="fa fa-arrows-v"/>
+                                <span t-esc="text.noTransfers"/>
+                            </div>
+                            <t t-else="">
+                                <t t-set="items" t-value="state.transferStatuses"/>
+                                <t t-set="modelKey" t-value="'internalTransfers'"/>
+                                <t t-call="tn_construction_dashboard.StatusRows"/>
+                            </t>
+                            <div class="tn_cd_operation_footer">
+                                <span t-esc="text.transferStatus"/>
+                                <button type="button" data-key="internalTransfers" t-on-click="onMetricClick">
+                                    <t t-esc="state.counts.openInternalTransfers || 0"/> <t t-esc="text.pending"/>
+                                </button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </t>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_template_form_inherit_tn_construction_flags" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.tn.construction.flags</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='purchase_ok']" position="after">
+                <field name="is_construction_material"/>
+                <field name="is_construction_equipment"/>
+                <field name="is_construction_labour"/>
+                <field name="is_construction_overhead"/>
+                <field name="is_construction_expense"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_material_products" model="ir.actions.act_window">
+        <field name="name">Materials</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_construction_material', '=', True)]</field>
+        <field name="context">{'default_is_construction_material': True, 'default_purchase_ok': True, 'default_sale_ok': True}</field>
+    </record>
+
+    <record id="action_tn_construction_equipment_products" model="ir.actions.act_window">
+        <field name="name">Equipments</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_construction_equipment', '=', True)]</field>
+        <field name="context">{'default_is_construction_equipment': True, 'default_purchase_ok': True, 'default_sale_ok': True}</field>
+    </record>
+
+    <record id="action_tn_construction_labour_products" model="ir.actions.act_window">
+        <field name="name">Labours</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_construction_labour', '=', True)]</field>
+        <field name="context">{'default_is_construction_labour': True, 'default_purchase_ok': True, 'default_sale_ok': True, 'default_type': 'service'}</field>
+    </record>
+
+    <record id="action_tn_construction_overhead_products" model="ir.actions.act_window">
+        <field name="name">Overheads</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_construction_overhead', '=', True)]</field>
+        <field name="context">{'default_is_construction_overhead': True, 'default_purchase_ok': True, 'default_sale_ok': True}</field>
+    </record>
+
+    <record id="action_tn_construction_expense_products" model="ir.actions.act_window">
+        <field name="name">Expenses</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_construction_expense', '=', True)]</field>
+        <field name="context">{'default_is_construction_expense': True, 'default_purchase_ok': True, 'default_sale_ok': False, 'default_type': 'service'}</field>
+    </record>
+
+    <record id="view_tn_construction_work_type_list" model="ir.ui.view">
+        <field name="name">tn.construction.work.type.list</field>
+        <field name="model">tn.construction.work.type</field>
+        <field name="arch" type="xml">
+            <list string="Work Types">
+                <field name="name" string="Title"/>
+                <field name="sub_type_ids" string="Work Sub Type" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_work_type_form" model="ir.ui.view">
+        <field name="name">tn.construction.work.type.form</field>
+        <field name="model">tn.construction.work.type</field>
+        <field name="arch" type="xml">
+            <form string="Work Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="sub_type_ids" widget="many2many_tags"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_work_type" model="ir.actions.act_window">
+        <field name="name">Work Types</field>
+        <field name="res_model">tn.construction.work.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_tn_construction_work_sub_type_list" model="ir.ui.view">
+        <field name="name">tn.construction.work.sub.type.list</field>
+        <field name="model">tn.construction.work.sub.type</field>
+        <field name="arch" type="xml">
+            <list string="Work Sub Types">
+                <field name="name" string="Title"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_work_sub_type_form" model="ir.ui.view">
+        <field name="name">tn.construction.work.sub.type.form</field>
+        <field name="model">tn.construction.work.sub.type</field>
+        <field name="arch" type="xml">
+            <form string="Work Sub Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_work_sub_type" model="ir.actions.act_window">
+        <field name="name">Work Sub Types</field>
+        <field name="res_model">tn.construction.work.sub.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_tn_construction_stakeholder_list" model="ir.ui.view">
+        <field name="name">tn.construction.stakeholder.list</field>
+        <field name="model">tn.construction.stakeholder</field>
+        <field name="arch" type="xml">
+            <list string="Stakeholders">
+                <field name="partner_id"/>
+                <field name="project_id"/>
+                <field name="role"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="share"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_stakeholder_form" model="ir.ui.view">
+        <field name="name">tn.construction.stakeholder.form</field>
+        <field name="model">tn.construction.stakeholder</field>
+        <field name="arch" type="xml">
+            <form string="Stakeholder">
+                <sheet>
+                    <group>
+                        <field name="project_id"/>
+                        <field name="partner_id"/>
+                        <field name="role"/>
+                        <field name="email" widget="email"/>
+                        <field name="phone" widget="phone"/>
+                        <field name="share"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_stakeholder" model="ir.actions.act_window">
+        <field name="name">Stakeholders</field>
+        <field name="res_model">tn.construction.stakeholder</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_tn_construction_employee" model="ir.actions.act_window">
+        <field name="name">Employees</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban,list,form,activity,graph,pivot</field>
+        <field name="context">{'chat_icon': True}</field>
+    </record>
+
+    <record id="view_tn_construction_simple_setup_list" model="ir.ui.view">
+        <field name="name">tn.construction.simple.setup.list</field>
+        <field name="model">tn.construction.document.type</field>
+        <field name="arch" type="xml">
+            <list string="Setup">
+                <field name="name" string="Title"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_document_type_form" model="ir.ui.view">
+        <field name="name">tn.construction.document.type.form</field>
+        <field name="model">tn.construction.document.type</field>
+        <field name="arch" type="xml">
+            <form string="Document Type">
+                <sheet><group><field name="name"/><field name="active"/></group></sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_document_type" model="ir.actions.act_window">
+        <field name="name">Document Types</field>
+        <field name="res_model">tn.construction.document.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_tn_construction_insurance_risk_form" model="ir.ui.view">
+        <field name="name">tn.construction.insurance.risk.form</field>
+        <field name="model">tn.construction.insurance.risk</field>
+        <field name="arch" type="xml">
+            <form string="Insurance Risk">
+                <sheet><group><field name="name"/><field name="active"/></group></sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_insurance_risk" model="ir.actions.act_window">
+        <field name="name">Insurance Risks</field>
+        <field name="res_model">tn.construction.insurance.risk</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_tn_construction_employee_tag_list" model="ir.ui.view">
+        <field name="name">tn.construction.employee.tag.list</field>
+        <field name="model">tn.construction.employee.tag</field>
+        <field name="arch" type="xml">
+            <list string="Employee Tags">
+                <field name="name" string="Title"/>
+                <field name="color"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_employee_tag_form" model="ir.ui.view">
+        <field name="name">tn.construction.employee.tag.form</field>
+        <field name="model">tn.construction.employee.tag</field>
+        <field name="arch" type="xml">
+            <form string="Employee Tag">
+                <sheet><group><field name="name"/><field name="color"/><field name="active"/></group></sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_employee_tag" model="ir.actions.act_window">
+        <field name="name">Employee Tags</field>
+        <field name="res_model">tn.construction.employee.tag</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_tn_construction_rate_analysis_template_list" model="ir.ui.view">
+        <field name="name">tn.construction.rate.analysis.template.list</field>
+        <field name="model">tn.construction.rate.analysis.template</field>
+        <field name="arch" type="xml">
+            <list string="Rate Analysis Templates">
+                <field name="name" string="Title"/>
+                <field name="work_type_id"/>
+                <field name="work_sub_type_id"/>
+                <field name="unit_id" string="Unit"/>
+                <field name="total_amount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_rate_analysis_template_form" model="ir.ui.view">
+        <field name="name">tn.construction.rate.analysis.template.form</field>
+        <field name="model">tn.construction.rate.analysis.template</field>
+        <field name="arch" type="xml">
+            <form string="Rate Analysis Template" class="tn_construction_project_form">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Foundation Standard Rate"/></h1>
+                    </div>
+                    <group>
+                        <group string="Work Type">
+                            <field name="work_type_id"/>
+                            <field name="work_sub_type_id"/>
+                        </group>
+                        <group string="Other Detail">
+                            <field name="company_id"/>
+                            <field name="unit_id"/>
+                        </group>
+                    </group>
+                    <group string="Availability">
+                        <div class="tn_rate_availability_row" colspan="2">
+                            <span class="tn_rate_availability_item"><field name="material_available" nolabel="1"/><label for="material_available"/></span>
+                            <span class="tn_rate_availability_item"><field name="equipment_available" nolabel="1"/><label for="equipment_available"/></span>
+                            <span class="tn_rate_availability_item"><field name="labour_available" nolabel="1"/><label for="labour_available"/></span>
+                            <span class="tn_rate_availability_item"><field name="overhead_available" nolabel="1"/><label for="overhead_available"/></span>
+                        </div>
+                    </group>
+                    <notebook>
+                        <page name="material" string="Material" invisible="not material_available">
+                            <field name="material_line_ids" context="{'default_line_type': 'material'}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="line_type" column_invisible="1"/>
+                                    <field name="product_id" string="Material"/>
+                                    <field name="internal_reference"/>
+                                    <field name="description"/>
+                                    <field name="qty"/>
+                                    <field name="uom_id"/>
+                                    <field name="sale_price"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="untaxed_amount"/>
+                                    <field name="tax_amount"/>
+                                    <field name="total_amount"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="equipment" string="Equipment" invisible="not equipment_available">
+                            <field name="equipment_line_ids" context="{'default_line_type': 'equipment'}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="line_type" column_invisible="1"/>
+                                    <field name="product_id" string="Equipment"/>
+                                    <field name="internal_reference"/>
+                                    <field name="description"/>
+                                    <field name="qty"/>
+                                    <field name="uom_id"/>
+                                    <field name="sale_price"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="untaxed_amount"/>
+                                    <field name="tax_amount"/>
+                                    <field name="total_amount"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="labour" string="Labour" invisible="not labour_available">
+                            <field name="labour_line_ids" context="{'default_line_type': 'labour'}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="line_type" column_invisible="1"/>
+                                    <field name="product_id" string="Labour"/>
+                                    <field name="internal_reference"/>
+                                    <field name="description"/>
+                                    <field name="qty"/>
+                                    <field name="uom_id"/>
+                                    <field name="sale_price"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="untaxed_amount"/>
+                                    <field name="tax_amount"/>
+                                    <field name="total_amount"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="overhead" string="Overhead" invisible="not overhead_available">
+                            <field name="overhead_line_ids" context="{'default_line_type': 'overhead'}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="line_type" column_invisible="1"/>
+                                    <field name="product_id" string="Overhead"/>
+                                    <field name="internal_reference"/>
+                                    <field name="description"/>
+                                    <field name="qty"/>
+                                    <field name="uom_id"/>
+                                    <field name="sale_price"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="untaxed_amount"/>
+                                    <field name="tax_amount"/>
+                                    <field name="total_amount"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group class="oe_subtotal_footer">
+                        <field name="untaxed_amount"/>
+                        <field name="tax_amount"/>
+                        <field name="total_amount"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_rate_analysis_template" model="ir.actions.act_window">
+        <field name="name">Rate Analysis Templates</field>
+        <field name="res_model">tn.construction.rate.analysis.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

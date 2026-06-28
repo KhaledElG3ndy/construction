@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_project_form_inherit_tn_boq" model="ir.ui.view">
+        <field name="name">project.project.form.inherit.tn.construction</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="class" add=" tn_construction_project_form" separator=" "/>
+            </xpath>
+
+            <xpath expr="//header/button[@name='action_open_share_project_wizard']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/field[@name='stage_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <button name="action_create_construction_sub_project"
+                        string="Create Sub Project"
+                        type="object"
+                        class="btn-primary"
+                        invisible="construction_state == 'completed'"/>
+                <button name="action_construction_complete"
+                        string="Complete"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="construction_state == 'completed'"/>
+                <field name="construction_state"
+                       widget="statusbar"
+                       options="{'clickable': '1'}"
+                       statusbar_visible="draft,in_progress,completed"/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']/button[@name='action_view_tasks']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[@name='button_box']/button[@name='project_update_all_action']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <div name="button_box" position="inside">
+                <button type="object"
+                        name="action_view_construction_sub_projects"
+                        class="oe_stat_button"
+                        icon="fa-briefcase">
+                    <field name="construction_sub_project_count" widget="statinfo" string="Sub Projects"/>
+                </button>
+                <button type="object"
+                        name="action_view_project_map"
+                        class="oe_stat_button"
+                        icon="fa-location-arrow">
+                    <span class="o_stat_text">Map Location</span>
+                </button>
+                <button type="object"
+                        name="action_view_project_documents"
+                        class="oe_stat_button"
+                        icon="fa-file-text">
+                    <field name="document_count" widget="statinfo" string="Documents"/>
+                </button>
+                <button type="object"
+                        name="action_view_progress_billing"
+                        class="oe_stat_button"
+                        icon="fa-credit-card">
+                    <field name="progress_billing_count" widget="statinfo" string="Progress Billing"/>
+                </button>
+                <button type="object"
+                        name="action_view_project_gantt"
+                        class="oe_stat_button"
+                        icon="fa-tasks">
+                    <span class="o_stat_text">Project Gantt</span>
+                </button>
+            </div>
+
+            <xpath expr="//sheet/group[1]" position="replace">
+                <group class="tn_construction_overview">
+                    <group>
+                        <field name="warehouse_id"/>
+                    </group>
+                    <group>
+                        <field name="company_id"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Address">
+                        <field name="address_street" string="Address"/>
+                        <field name="address_street2"/>
+                        <field name="address_city"/>
+                        <field name="address_state_id"/>
+                        <field name="address_zip"/>
+                        <field name="address_country_id"/>
+                    </group>
+                    <group string="Duration">
+                        <field name="date_start" string="Start Date"/>
+                        <field name="date" string="End Date"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Geographic Location">
+                        <field name="longitude"/>
+                        <field name="latitude"/>
+                    </group>
+                    <group string="Contact Details">
+                        <field name="phone" widget="phone"/>
+                        <field name="mobile" widget="phone"/>
+                        <field name="email" widget="email"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <xpath expr="//notebook/page[@name='description']" position="before">
+                <page name="construction_sub_projects" string="Sub Projects">
+                    <field name="construction_sub_project_ids" context="{'default_project_id': id, 'default_company_id': company_id}">
+                        <list editable="bottom" decoration-success="stage == 'done'" decoration-info="stage == 'construction'">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="company_id"/>
+                            <field name="stage" widget="badge"
+                                   decoration-warning="stage == 'planning'"
+                                   decoration-info="stage in ('procurement', 'construction')"
+                                   decoration-success="stage in ('handover', 'done')"/>
+                            <field name="progress" widget="progressbar"/>
+                        </list>
+                        <form string="Sub Project">
+                            <sheet>
+                                <div class="oe_button_box" name="button_box">
+                                    <button name="action_view_budget_analysis" type="object" class="oe_stat_button" icon="fa-briefcase">
+                                        <field name="budget_line_count" widget="statinfo" string="Budget Analysis"/>
+                                    </button>
+                                    <button name="action_view_work_orders" type="object" class="oe_stat_button" icon="fa-folder-open">
+                                        <field name="work_order_count" widget="statinfo" string="Work Order"/>
+                                    </button>
+                                    <button name="action_view_work_order_po" type="object" class="oe_stat_button" icon="fa-list">
+                                        <field name="purchase_order_count" widget="statinfo" string="Work Order PO"/>
+                                    </button>
+                                    <button name="action_view_mreq" type="object" class="oe_stat_button" icon="fa-cogs">
+                                        <span class="o_stat_text">MREQ</span>
+                                    </button>
+                                    <button name="action_view_mreq_po" type="object" class="oe_stat_button" icon="fa-list-alt">
+                                        <span class="o_stat_text">MREQ PO</span>
+                                    </button>
+                                </div>
+                                <group>
+                                    <group>
+                                        <field name="name"/>
+                                        <field name="project_id"/>
+                                        <field name="company_id"/>
+                                    </group>
+                                    <group>
+                                        <field name="stage"/>
+                                        <field name="progress" widget="progressbar"/>
+                                    </group>
+                                </group>
+                            </sheet>
+                            <chatter/>
+                        </form>
+                    </field>
+                </page>
+                <page name="construction_stakeholders" string="StackHolder">
+                    <field name="stakeholder_ids" context="{'default_project_id': id}">
+                        <kanban>
+                            <field name="partner_id"/>
+                            <field name="role"/>
+                            <field name="email"/>
+                            <field name="phone"/>
+                            <field name="share"/>
+                            <field name="image_128"/>
+                            <templates>
+                                <t t-name="card">
+                                    <div class="oe_kanban_global_click tn_construction_stakeholder_card">
+                                        <field name="image_128" widget="image" class="tn_construction_avatar"/>
+                                        <div>
+                                            <strong><field name="partner_id"/></strong>
+                                            <div><field name="role"/></div>
+                                            <div><field name="email"/></div>
+                                            <div>Phone: <field name="phone"/></div>
+                                        </div>
+                                        <span><field name="share"/>%</span>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                        <form string="Stakeholder">
+                            <sheet>
+                                <group>
+                                    <field name="project_id"/>
+                                    <field name="partner_id"/>
+                                    <field name="role"/>
+                                    <field name="email" widget="email"/>
+                                    <field name="phone" widget="phone"/>
+                                    <field name="share"/>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
+                <page name="construction_images" string="Images">
+                    <field name="site_image_ids" context="{'default_project_id': id}">
+                        <kanban>
+                            <field name="name"/>
+                            <field name="image"/>
+                            <templates>
+                                <t t-name="card">
+                                    <div class="oe_kanban_global_click">
+                                        <field name="image" widget="image"/>
+                                        <strong><field name="name"/></strong>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                        <form string="Site Image">
+                            <sheet>
+                                <group>
+                                    <field name="project_id"/>
+                                    <field name="name"/>
+                                    <field name="image" widget="image"/>
+                                    <field name="description"/>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
+                <page name="construction_measurements" string="Project Measurement">
+                    <field name="measurement_ids" context="{'default_project_id': id}">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="title"/>
+                            <field name="length"/>
+                            <field name="width"/>
+                            <field name="area"/>
+                        </list>
+                    </field>
+                </page>
+                <page name="construction_permits" string="Permits &amp; Approvals">
+                    <field name="permit_ids" context="{'default_project_id': id}">
+                        <list editable="bottom">
+                            <field name="date"/>
+                            <field name="document_type"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                            <field name="submitted_by_id"/>
+                            <field name="feedback"/>
+                            <field name="status" widget="badge"
+                                   decoration-warning="status == 'pending'"
+                                   decoration-success="status == 'approved'"
+                                   decoration-danger="status == 'rejected'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+            <xpath expr="//notebook/page[@name='description']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//notebook/page[@name='settings']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//notebook/page[@name='analytic']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_sub_project_list" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.list</field>
+        <field name="model">tn.construction.sub.project</field>
+        <field name="arch" type="xml">
+            <list string="Construction Sub Projects"
+                  decoration-muted="stage == 'draft'"
+                  decoration-info="stage in ('planning', 'procurement')"
+                  decoration-success="stage in ('handover', 'done')">
+                <field name="name" string="Title"/>
+                <field name="project_id"/>
+                <field name="code"/>
+                <field name="warehouse_id"/>
+                <field name="related_project_id"/>
+                <field name="schedule_start_date"/>
+                <field name="schedule_end_date"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="stage" widget="badge"
+                       decoration-muted="stage == 'draft'"
+                       decoration-warning="stage == 'planning'"
+                       decoration-info="stage in ('procurement', 'construction')"
+                       decoration-success="stage in ('handover', 'done')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_sub_project_search" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.search</field>
+        <field name="model">tn.construction.sub.project</field>
+        <field name="arch" type="xml">
+            <search string="Construction Sub Projects">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="project_id"/>
+                <field name="company_id"/>
+                <field name="warehouse_id"/>
+                <filter name="stage_draft" string="Draft" domain="[('stage', '=', 'draft')]"/>
+                <filter name="stage_planning" string="Planning" domain="[('stage', '=', 'planning')]"/>
+                <filter name="stage_procurement" string="Procurement" domain="[('stage', '=', 'procurement')]"/>
+                <filter name="stage_construction" string="Construction" domain="[('stage', '=', 'construction')]"/>
+                <filter name="stage_handover" string="Handover" domain="[('stage', '=', 'handover')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_stage" string="Stage" context="{'group_by': 'stage'}"/>
+                    <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
+                    <filter name="group_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
+                </group>
+                <searchpanel>
+                    <field name="stage" string="Stage"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_sub_project_kanban" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.kanban</field>
+        <field name="model">tn.construction.sub.project</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="code"/>
+                <field name="stage"/>
+                <field name="progress"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <strong><field name="name"/></strong>
+                            <div><field name="project_id"/></div>
+                            <div><field name="code"/></div>
+                            <field name="progress" widget="progressbar"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_sub_project_pivot" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.pivot</field>
+        <field name="model">tn.construction.sub.project</field>
+        <field name="arch" type="xml">
+            <pivot string="Sub Projects">
+                <field name="stage" type="row"/>
+                <field name="project_id" type="col"/>
+                <field name="progress" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_sub_project_form" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.form</field>
+        <field name="model">tn.construction.sub.project</field>
+        <field name="arch" type="xml">
+            <form string="Construction Sub Project" class="tn_construction_project_form">
+                <header>
+                    <field name="stage" widget="statusbar" statusbar_visible="draft,planning,procurement,construction,handover,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_progress_bills" type="object" class="oe_stat_button" icon="fa-tasks">
+                            <field name="progress_billing_count" widget="statinfo" string="Progress Bills"/>
+                        </button>
+                        <button name="action_view_tasks" type="object" class="oe_stat_button" icon="fa-tasks">
+                            <field name="task_count" widget="statinfo" string="Tasks"/>
+                        </button>
+                        <button name="action_view_inspection_tasks" type="object" class="oe_stat_button" icon="fa-star">
+                            <field name="inspection_task_count" widget="statinfo" string="Inspection Tasks"/>
+                        </button>
+                        <button name="action_view_project_phases" type="object" class="oe_stat_button" icon="fa-files-o">
+                            <field name="phase_count" widget="statinfo" string="Project Phases(WBS)"/>
+                        </button>
+                        <button name="action_view_work_orders" type="object" class="oe_stat_button" icon="fa-folder-open">
+                            <field name="work_order_count" widget="statinfo" string="Work Orders"/>
+                        </button>
+                        <button name="action_view_mreq" type="object" class="oe_stat_button" icon="fa-cogs">
+                            <field name="material_requisition_count" widget="statinfo" string="Material Requisitions"/>
+                        </button>
+                        <button name="action_view_budget_lines" type="object" class="oe_stat_button" icon="fa-folder">
+                            <field name="budget_line_count" widget="statinfo" string="Budget Lines"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Tower A Construction"/></h1>
+                        <h3><field name="project_id"/></h3>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="warehouse_id"/>
+                            <field name="project_id"/>
+                            <field name="related_project_id"/>
+                            <field name="budget_id"/>
+                        </group>
+                        <group>
+                            <field name="progress" widget="progressbar"/>
+                            <field name="stage"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Company">
+                            <field name="company_id"/>
+                        </group>
+                        <group string="Duration">
+                            <field name="schedule_start_date"/>
+                            <field name="schedule_end_date"/>
+                            <field name="create_uid" string="Created By" widget="many2one_avatar_user"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Address">
+                            <field name="address_street" string="Address"/>
+                            <field name="address_street2"/>
+                            <field name="address_city"/>
+                            <field name="address_state_id"/>
+                            <field name="address_zip"/>
+                            <field name="address_country_id"/>
+                        </group>
+                        <group string="Geographic Location">
+                            <field name="longitude"/>
+                            <field name="latitude"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="engineers" string="Engineers">
+                            <field name="engineer_ids" context="{'default_sub_project_id': id}">
+                                <kanban>
+                                    <field name="partner_id"/>
+                                    <field name="role"/>
+                                    <field name="phone"/>
+                                    <field name="email"/>
+                                    <field name="share"/>
+                                    <field name="image_128"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div class="oe_kanban_global_click tn_construction_stakeholder_card">
+                                                <field name="image_128" widget="image" class="tn_construction_avatar"/>
+                                                <div>
+                                                    <strong><field name="partner_id"/></strong>
+                                                    <div><field name="role"/></div>
+                                                    <div><field name="email"/></div>
+                                                    <div>Phone: <field name="phone"/></div>
+                                                </div>
+                                                <span><field name="share"/>%</span>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                                <form string="Engineer">
+                                    <sheet>
+                                        <group>
+                                            <field name="partner_id"/>
+                                            <field name="role"/>
+                                            <field name="phone" widget="phone"/>
+                                            <field name="email" widget="email"/>
+                                            <field name="share"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="documents" string="Documents">
+                            <field name="document_ids" context="{'default_sub_project_id': id}">
+                                <list editable="bottom">
+                                    <field name="name" string="Document"/>
+                                    <field name="attachment_ids" widget="many2many_binary" string="Documents"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="insurance" string="Insurance">
+                            <field name="insurance_ids" context="{'default_sub_project_id': id}">
+                                <list editable="bottom">
+                                    <field name="vendor_id"/>
+                                    <field name="issue_date"/>
+                                    <field name="insurance"/>
+                                    <field name="insurance_ref"/>
+                                    <field name="risk_coverage"/>
+                                    <field name="attachment_ids" widget="many2many_binary"/>
+                                    <field name="total_charge"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="bill_id"/>
+                                    <field name="status" widget="badge"
+                                           decoration-muted="status == 'draft'"
+                                           decoration-success="status == 'active'"
+                                           decoration-warning="status == 'expired'"
+                                           decoration-danger="status == 'cancelled'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="extra_expense" string="Extra Expense">
+                            <field name="extra_expense_ids" context="{'default_sub_project_id': id}">
+                                <list editable="bottom">
+                                    <field name="date"/>
+                                    <field name="vendor_id"/>
+                                    <field name="expense_id"/>
+                                    <field name="note"/>
+                                    <field name="qty"/>
+                                    <field name="cost"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="bill_id"/>
+                                    <field name="status" widget="badge"
+                                           decoration-muted="status == 'draft'"
+                                           decoration-info="status == 'approved'"
+                                           decoration-success="status == 'posted'"
+                                           decoration-danger="status == 'cancelled'"/>
+                                    <field name="payment_status" widget="badge"
+                                           decoration-danger="payment_status == 'not_paid'"
+                                           decoration-warning="payment_status == 'partial'"
+                                           decoration-success="payment_status == 'paid'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="boq" string="BOQ">
+                            <field name="use_lwh"/>
+                            <field name="boq_item_ids" context="{'default_sub_project_id': id}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="work_type"/>
+                                    <field name="work_sub_type"/>
+                                    <field name="qty"/>
+                                    <field name="length"/>
+                                    <field name="width"/>
+                                    <field name="height"/>
+                                    <field name="total_qty"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_measurement_list" model="ir.ui.view">
+        <field name="name">tn.construction.measurement.list</field>
+        <field name="model">tn.construction.measurement</field>
+        <field name="arch" type="xml">
+            <list string="Project Measurements">
+                <field name="project_id"/>
+                <field name="title"/>
+                <field name="length"/>
+                <field name="width"/>
+                <field name="area"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_permit_list" model="ir.ui.view">
+        <field name="name">tn.construction.permit.list</field>
+        <field name="model">tn.construction.permit</field>
+        <field name="arch" type="xml">
+            <list string="Permits &amp; Approvals">
+                <field name="project_id"/>
+                <field name="date"/>
+                <field name="document_type"/>
+                <field name="submitted_by_id"/>
+                <field name="status" widget="badge"
+                       decoration-warning="status == 'pending'"
+                       decoration-success="status == 'approved'"
+                       decoration-danger="status == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_permit_form" model="ir.ui.view">
+        <field name="name">tn.construction.permit.form</field>
+        <field name="model">tn.construction.permit</field>
+        <field name="arch" type="xml">
+            <form string="Permit &amp; Approval" class="tn_construction_project_form">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="date"/>
+                            <field name="document_type"/>
+                            <field name="submitted_by_id"/>
+                        </group>
+                        <group>
+                            <field name="status" widget="radio"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="feedback"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_sub_project" model="ir.actions.act_window">
+        <field name="name">Construction Sub Projects</field>
+        <field name="res_model">tn.construction.sub.project</field>
+        <field name="view_mode">list,kanban,form,pivot</field>
+        <field name="search_view_id" ref="view_tn_construction_sub_project_search"/>
+    </record>
+
+    <record id="action_tn_construction_measurement" model="ir.actions.act_window">
+        <field name="name">Project Measurements</field>
+        <field name="res_model">tn.construction.measurement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_tn_construction_permit" model="ir.actions.act_window">
+        <field name="name">Permits &amp; Approvals</field>
+        <field name="res_model">tn.construction.permit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

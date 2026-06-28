@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="work_sub_type_excavation" model="tn.construction.work.sub.type">
+        <field name="name">Excavation</field>
+    </record>
+    <record id="work_sub_type_footings" model="tn.construction.work.sub.type">
+        <field name="name">Footings</field>
+    </record>
+    <record id="work_sub_type_columns" model="tn.construction.work.sub.type">
+        <field name="name">Columns</field>
+    </record>
+    <record id="work_sub_type_blockwork" model="tn.construction.work.sub.type">
+        <field name="name">Blockwork</field>
+    </record>
+
+    <record id="work_type_foundation" model="tn.construction.work.type">
+        <field name="name">Foundation Works</field>
+        <field name="sub_type_ids" eval="[(6, 0, [ref('work_sub_type_excavation'), ref('work_sub_type_footings')])]"/>
+    </record>
+    <record id="work_type_structural" model="tn.construction.work.type">
+        <field name="name">Structural Works</field>
+        <field name="sub_type_ids" eval="[(6, 0, [ref('work_sub_type_columns')])]"/>
+    </record>
+    <record id="work_type_finishing" model="tn.construction.work.type">
+        <field name="name">Finishing Works</field>
+        <field name="sub_type_ids" eval="[(6, 0, [ref('work_sub_type_blockwork')])]"/>
+    </record>
+
+    <record id="document_type_drawing" model="tn.construction.document.type">
+        <field name="name">Drawing</field>
+    </record>
+    <record id="document_type_inspection_report" model="tn.construction.document.type">
+        <field name="name">Inspection Report</field>
+    </record>
+    <record id="insurance_risk_site_damage" model="tn.construction.insurance.risk">
+        <field name="name">Site Damage</field>
+    </record>
+    <record id="insurance_risk_worker_safety" model="tn.construction.insurance.risk">
+        <field name="name">Worker Safety</field>
+    </record>
+    <record id="employee_tag_employee" model="tn.construction.employee.tag">
+        <field name="name">Employee</field>
+        <field name="color">2</field>
+    </record>
+    <record id="employee_tag_consultant" model="tn.construction.employee.tag">
+        <field name="name">Consultant</field>
+        <field name="color">3</field>
+    </record>
+    <record id="employee_tag_trainer" model="tn.construction.employee.tag">
+        <field name="name">Trainer</field>
+        <field name="color">4</field>
+    </record>
+
+    <record id="product_ready_mix_concrete_c30" model="product.product">
+        <field name="name">Ready Mix Concrete C30</field>
+        <field name="sale_ok">1</field>
+        <field name="purchase_ok">1</field>
+        <field name="is_construction_material">1</field>
+        <field name="list_price">260.0</field>
+        <field name="standard_price">240.0</field>
+    </record>
+    <record id="product_rebar_steel_16mm" model="product.product">
+        <field name="name">Rebar Steel 16mm</field>
+        <field name="sale_ok">1</field>
+        <field name="purchase_ok">1</field>
+        <field name="is_construction_material">1</field>
+        <field name="list_price">3250.0</field>
+        <field name="standard_price">3100.0</field>
+    </record>
+
+    <record id="rate_analysis_template_foundation_standard" model="tn.construction.rate.analysis.template">
+        <field name="name">Foundation Standard Rate Template</field>
+        <field name="work_type_id" ref="work_type_foundation"/>
+        <field name="work_sub_type_id" ref="work_sub_type_footings"/>
+        <field name="unit_id" ref="uom.product_uom_unit"/>
+    </record>
+    <record id="rate_analysis_template_line_concrete" model="tn.construction.rate.analysis.template.line">
+        <field name="template_id" ref="rate_analysis_template_foundation_standard"/>
+        <field name="line_type">material</field>
+        <field name="product_id" ref="product_ready_mix_concrete_c30"/>
+        <field name="description">Concrete supply</field>
+        <field name="qty">1.0</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="sale_price">260.0</field>
+    </record>
+    <record id="rate_analysis_template_line_rebar" model="tn.construction.rate.analysis.template.line">
+        <field name="template_id" ref="rate_analysis_template_foundation_standard"/>
+        <field name="line_type">material</field>
+        <field name="product_id" ref="product_rebar_steel_16mm"/>
+        <field name="description">Steel reinforcement</field>
+        <field name="qty">0.1</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="sale_price">3250.0</field>
+    </record>
+</odoo>

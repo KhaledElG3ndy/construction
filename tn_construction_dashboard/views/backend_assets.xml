@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="tn_construction_backend_theme_asset" model="ir.asset">
+        <field name="name">TN Construction Backend Theme</field>
+        <field name="bundle">web.assets_backend</field>
+        <field name="sequence">9999</field>
+        <field name="path">tn_construction_dashboard/static/src/backend_theme/construction_backend_theme.scss</field>
+    </record>
+</odoo>

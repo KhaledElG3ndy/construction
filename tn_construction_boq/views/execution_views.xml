@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_tn_construction_phase_list" model="ir.ui.view">
+        <field name="name">tn.construction.phase.list</field>
+        <field name="model">tn.construction.phase</field>
+        <field name="arch" type="xml">
+            <list string="Project Phases" decoration-success="state == 'approved'" decoration-info="state == 'in_progress'">
+                <field name="sequence_code"/>
+                <field name="name" string="Title"/>
+                <field name="sub_project_id"/>
+                <field name="create_uid" widget="many2one_avatar_user" string="Created By"/>
+                <field name="company_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_phase_search" model="ir.ui.view">
+        <field name="name">tn.construction.phase.search</field>
+        <field name="model">tn.construction.phase</field>
+        <field name="arch" type="xml">
+            <search string="Project Phases">
+                <field name="sequence_code"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="sub_project_id"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_status" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_sub_project" string="Sub Project" context="{'group_by': 'sub_project_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_phase_form" model="ir.ui.view">
+        <field name="name">tn.construction.phase.form</field>
+        <field name="model">tn.construction.phase</field>
+        <field name="arch" type="xml">
+            <form string="Project Phase" class="tn_construction_project_form">
+                <header>
+                    <button name="action_set_in_progress" type="object" string="In Progress" class="btn-primary" invisible="state == 'in_progress'"/>
+                    <button name="action_complete" type="object" string="Complete" class="btn-secondary" invisible="state == 'complete'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,waiting_approval,approved,in_progress,complete"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_work_orders" type="object" class="oe_stat_button" icon="fa-files-o">
+                            <field name="work_order_count" widget="statinfo" string="Work Orders"/>
+                        </button>
+                        <button name="action_view_material_requests" type="object" class="oe_stat_button" icon="fa-cogs">
+                            <field name="material_request_count" widget="statinfo" string="Material Requisitions"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="sequence_code"/></h1>
+                    </div>
+                    <group>
+                        <field name="name" string="Title"/>
+                    </group>
+                    <group>
+                        <group string="Project Details">
+                            <field name="project_id"/>
+                            <field name="sub_project_id"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group string="Other Details">
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="create_uid" string="Created By" widget="many2one_avatar_user"/>
+                        </group>
+                    </group>
+                    <group string="Work Type">
+                        <field name="work_type"/>
+                    </group>
+                    <notebook>
+                        <page name="materials" string="Materials">
+                            <field name="material_line_ids" context="{'default_line_type': 'material'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="product_id" string="Material"/>
+                                <field name="description"/>
+                                <field name="budget_qty"/>
+                                <field name="qty"/>
+                                <field name="forecast_qty"/>
+                                <field name="remain_qty"/>
+                                <field name="uom_id"/>
+                                <field name="cost_unit"/>
+                                <field name="taxes"/>
+                                <field name="total_cost"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                        <page name="equipments" string="Equipments">
+                            <field name="equipment_line_ids" context="{'default_line_type': 'equipment'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="product_id" string="Equipment"/>
+                                <field name="equipment_type"/>
+                                <field name="description"/>
+                                <field name="budget_qty"/>
+                                <field name="qty"/>
+                                <field name="forecast_qty"/>
+                                <field name="remain_qty"/>
+                                <field name="estimation_cost"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                        <page name="labours" string="Labours">
+                            <field name="labour_line_ids" context="{'default_line_type': 'labour'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="hours"/>
+                                <field name="forecast_hours"/>
+                                <field name="remain_hours"/>
+                                <field name="budget_qty"/>
+                                <field name="cost_hour"/>
+                                <field name="taxes"/>
+                                <field name="total_cost"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                        <page name="overheads" string="Overheads">
+                            <field name="overhead_line_ids" context="{'default_line_type': 'overhead'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="budget_qty"/>
+                                <field name="qty"/>
+                                <field name="forecast_qty"/>
+                                <field name="remain_qty"/>
+                                <field name="uom_id"/>
+                                <field name="cost_unit"/>
+                                <field name="taxes"/>
+                                <field name="total_cost"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_phase" model="ir.actions.act_window">
+        <field name="name">Project Phases</field>
+        <field name="res_model">tn.construction.phase</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_tn_construction_phase_search"/>
+    </record>
+
+    <record id="view_tn_construction_work_order_list" model="ir.ui.view">
+        <field name="name">tn.construction.work.order.list</field>
+        <field name="model">tn.construction.work.order</field>
+        <field name="arch" type="xml">
+            <list string="Work Orders">
+                <field name="sequence_code"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="phase_id"/>
+                <field name="company_id"/>
+                <field name="sub_project_id"/>
+                <field name="state" widget="badge"/>
+                <button name="action_create_material_request" type="object" string="Create Consume Order" class="btn-primary"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_work_order_search" model="ir.ui.view">
+        <field name="name">tn.construction.work.order.search</field>
+        <field name="model">tn.construction.work.order</field>
+        <field name="arch" type="xml">
+            <search string="Work Orders">
+                <field name="sequence_code"/>
+                <field name="name"/>
+                <field name="phase_id"/>
+                <field name="sub_project_id"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="group_phase" string="Project Phase(WBS)" context="{'group_by': 'phase_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_work_order_form" model="ir.ui.view">
+        <field name="name">tn.construction.work.order.form</field>
+        <field name="model">tn.construction.work.order</field>
+        <field name="arch" type="xml">
+            <form string="Work Order" class="tn_construction_project_form">
+                <header>
+                    <button name="action_complete" type="object" string="Complete" class="btn-primary" invisible="state == 'completed'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,material_requested,material_arrived,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-calendar">
+                            <field name="timesheet_hours" widget="statinfo" string="Timesheet Hours"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="sequence_code"/></h1>
+                        <h3><field name="name"/></h3>
+                    </div>
+                    <group>
+                        <group string="Project Details">
+                            <field name="project_id"/>
+                            <field name="sub_project_id"/>
+                            <field name="company_id"/>
+                            <field name="warehouse_id"/>
+                        </group>
+                        <group string="Other Details">
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="create_uid" string="Created By" widget="many2one_avatar_user"/>
+                        </group>
+                    </group>
+                    <group string="Work Type &amp; Phase">
+                        <field name="work_type"/>
+                        <field name="phase_id"/>
+                    </group>
+                    <notebook>
+                        <page name="task_details" string="Task Details">
+                            <group>
+                                <group>
+                                    <field name="task_project_id"/>
+                                    <field name="task_title"/>
+                                    <field name="assignee_ids" widget="many2many_tags"/>
+                                    <field name="description"/>
+                                </group>
+                                <group>
+                                    <field name="task_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="required_materials" string="Required Materials">
+                            <group><button name="action_create_material_request" type="object" string="Create Consume Order" class="btn-primary"/><button name="action_view_material_requests" type="object" string="View Consume Orders" class="btn-secondary"/></group>
+                            <field name="material_line_ids" context="{'default_line_type': 'material'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="product_id" string="Material"/>
+                                <field name="description"/>
+                                <field name="qty"/>
+                                <field name="used_qty"/>
+                                <field name="remain_qty"/>
+                                <field name="uom_id"/>
+                                <field name="price"/>
+                                <field name="taxes"/>
+                                <field name="total_price"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                        <page name="required_equipments" string="Required Equipments">
+                            <group><button name="action_create_equipment_subcontracts" type="object" string="Create Subcontracts" class="btn-primary"/><button name="action_view_equipment_subcontracts" type="object" string="View Subcontracts" class="btn-secondary"/></group>
+                            <field name="equipment_line_ids" context="{'default_line_type': 'equipment'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="vendor_id"/>
+                                <field name="product_id" string="Equipment"/>
+                                <field name="equipment_type"/>
+                                <field name="description"/>
+                                <field name="qty"/>
+                                <field name="cost_unit"/>
+                                <field name="taxes"/>
+                                <field name="total_price"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                        <page name="required_labours" string="Required Labours">
+                            <group><button name="action_create_labour_subcontracts" type="object" string="Create Subcontracts" class="btn-primary"/><button name="action_view_labour_subcontracts" type="object" string="View Subcontracts" class="btn-secondary"/></group>
+                            <field name="labour_line_ids" context="{'default_line_type': 'labour'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="vendor_id"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="hours"/>
+                                <field name="remaining_hours"/>
+                                <field name="cost_hour"/>
+                                <field name="taxes"/>
+                                <field name="total_price"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                        <page name="required_overheads" string="Required Overheads">
+                            <group><button name="action_create_overhead_subcontracts" type="object" string="Create Subcontracts" class="btn-primary"/><button name="action_view_overhead_subcontracts" type="object" string="View Subcontracts" class="btn-secondary"/></group>
+                            <field name="overhead_line_ids" context="{'default_line_type': 'overhead'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="vendor_id"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="qty"/>
+                                <field name="uom_id"/>
+                                <field name="cost_unit"/>
+                                <field name="taxes"/>
+                                <field name="total_price"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_work_order" model="ir.actions.act_window">
+        <field name="name">Work Orders</field>
+        <field name="res_model">tn.construction.work.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_tn_construction_work_order_search"/>
+    </record>
+
+    <record id="view_tn_construction_material_request_list" model="ir.ui.view">
+        <field name="name">tn.construction.material.request.list</field>
+        <field name="model">tn.construction.material.request</field>
+        <field name="arch" type="xml">
+            <list string="Material Requisition">
+                <field name="sequence_code"/>
+                <field name="date"/>
+                <field name="company_id"/>
+                <field name="sub_project_id"/>
+                <field name="created_by_id" widget="many2one_avatar_user" string="Created By"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_material_request_search" model="ir.ui.view">
+        <field name="name">tn.construction.material.request.search</field>
+        <field name="model">tn.construction.material.request</field>
+        <field name="arch" type="xml">
+            <search string="Material Requisition">
+                <field name="sequence_code"/>
+                <field name="project_id"/>
+                <field name="sub_project_id"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_status" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_sub_project" string="Sub Project" context="{'group_by': 'sub_project_id'}"/>
+                </group>
+                <searchpanel>
+                    <field name="state" string="Status"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_material_request_form" model="ir.ui.view">
+        <field name="name">tn.construction.material.request.form</field>
+        <field name="model">tn.construction.material.request</field>
+        <field name="arch" type="xml">
+            <form string="Material Requisition" class="tn_construction_project_form">
+                <header>
+                    <button name="action_create_po" type="object" string="Create PO" class="btn-primary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="waiting_department_approval,in_progress,ready_delivery,internal_transfer,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="sequence_code"/></h1>
+                        <h3><field name="name"/></h3>
+                    </div>
+                    <group>
+                        <group string="Project Details">
+                            <field name="project_id"/>
+                            <field name="sub_project_id"/>
+                            <field name="warehouse_id"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group string="Other Details">
+                            <field name="date"/>
+                            <field name="created_by_id" widget="many2one_avatar_user"/>
+                            <field name="department_manager_id"/>
+                        </group>
+                    </group>
+                    <group string="Work Type &amp; Project Phase(WBS)">
+                        <field name="work_type"/>
+                        <field name="work_order_id"/>
+                        <field name="phase_id"/>
+                    </group>
+                    <notebook>
+                        <page name="material_requisition" string="Material Requisition">
+                            <field name="material_line_ids" context="{'default_line_type': 'requisition'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="material_id" string="Material"/>
+                                <field name="description"/>
+                                <field name="qty"/>
+                                <field name="forecast_qty"/>
+                                <field name="uom_id"/>
+                                <field name="pickup_delivery"/>
+                                <field name="operation"/>
+                            </list></field>
+                        </page>
+                        <page name="material_purchase" string="Material Purchase">
+                            <field name="purchase_line_ids" context="{'default_line_type': 'purchase'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="qty"/>
+                                <field name="uom_id"/>
+                                <field name="price"/>
+                                <field name="total_price"/>
+                                <field name="pickup_delivery"/>
+                                <field name="vendor_id"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list></field>
+                        </page>
+                        <page name="internal_transfer" string="Internal Transfer">
+                            <field name="transfer_line_ids" context="{'default_line_type': 'transfer'}"><list editable="bottom">
+                                <field name="line_type" column_invisible="1"/>
+                                <field name="work_sub_type"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="picking_warehouse_id"/>
+                                <field name="delivery_warehouse_id"/>
+                                <field name="qty"/>
+                                <field name="forecast_qty"/>
+                            </list></field>
+                        </page>
+                        <page name="description" string="Description">
+                            <field name="description"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_material_request" model="ir.actions.act_window">
+        <field name="name">Material Requisition</field>
+        <field name="res_model">tn.construction.material.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_tn_construction_material_request_search"/>
+    </record>
+
+</odoo>

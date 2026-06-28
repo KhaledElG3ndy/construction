@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+  <t t-name="tn_full_app_switcher.AppsMenu"
+     t-inherit="web.NavBar.AppsMenu"
+     t-inherit-mode="extension">
+    <xpath expr="//t[@t-name='web.NavBar.AppsMenu']/t[@t-else='']" position="replace">
+      <t t-else="">
+        <t t-if="!isScopedApp">
+          <div class="o_navbar_apps_menu">
+            <button
+              data-hotkey="h"
+              title="Home Menu"
+              aria-label="Home Menu"
+              t-att-aria-expanded="state.isAllAppsMenuOpened ? 'true' : 'false'"
+              t-on-click.stop="toggleFullAppsMenu"
+            >
+              <i class="oi oi-apps" />
+            </button>
+          </div>
+
+        <t t-portal="'body'">
+          <div
+            t-if="!this.ui.isSmall and state.isAllAppsMenuOpened"
+            class="o_full_apps_menu"
+          >
+            <div class="o_full_apps_menu__grid">
+                <t t-foreach="apps" t-as="app" t-key="app.id">
+                  <a
+                    class="o_full_apps_menu__app"
+                    t-att-class="{ 'o_current_app': menuService.getCurrentApp() === app }"
+                    t-att-href="getMenuItemHref(app)"
+                    t-att-data-menu-xmlid="app.xmlid"
+                    t-att-data-section="app.id"
+                    t-on-click.prevent="() => this.onFullAppsMenuItemClick(app)"
+                  >
+                    <span class="o_full_apps_menu__icon">
+                      <img t-if="app.webIconData" t-att-src="app.webIconData" t-att-alt="app.name"/>
+                      <span t-else="" class="o_full_apps_menu__fallback" t-esc="app.name[0]"/>
+                    </span>
+                    <span class="o_full_apps_menu__label" t-esc="app.name"/>
+                  </a>
+                </t>
+              </div>
+            </div>
+          </t>
+        </t>
+        <div t-else="" class="mx-2"/>
+      </t>
+    </xpath>
+  </t>
+
+</templates>

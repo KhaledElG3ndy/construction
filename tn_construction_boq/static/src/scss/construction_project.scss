@@ -1,0 +1,119 @@
+.tn_construction_project_form {
+    --tn-construction-teal: #14b8a6;
+    --tn-construction-blue: #0ea5e9;
+    --tn-construction-orange: #f97316;
+    --tn-construction-ink: #111827;
+    --tn-construction-muted: #64748b;
+    --tn-construction-line: rgba(15, 23, 42, 0.1);
+}
+
+.tn_construction_project_form .o_form_sheet_bg {
+    background:
+        linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(20, 184, 166, 0.05) 1px, transparent 1px),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 253, 250, 0.9) 45%, rgba(255, 247, 237, 0.72));
+    background-size: 42px 42px, 42px 42px, auto;
+}
+
+.tn_construction_project_form .o_form_sheet {
+    border: 1px solid var(--tn-construction-line);
+    border-radius: 8px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.tn_construction_project_form .oe_button_box .oe_stat_button {
+    border-radius: 8px;
+}
+
+.tn_construction_project_form .oe_button_box .oe_stat_button:hover {
+    border-color: rgba(14, 165, 233, 0.35);
+    background: rgba(239, 253, 250, 0.65);
+}
+
+.tn_construction_project_form .o_notebook .nav-link.active {
+    color: var(--tn-construction-ink);
+    border-top: 3px solid var(--tn-construction-teal);
+}
+
+.tn_construction_project_form .tn_construction_overview {
+    margin-top: 12px;
+}
+
+.tn_construction_project_form .o_group .o_horizontal_separator {
+    color: var(--tn-construction-ink);
+    font-weight: 800;
+}
+
+.tn_construction_project_form .o_field_progressbar .o_progressbar_complete {
+    background-color: var(--tn-construction-teal);
+}
+
+.tn_construction_project_form .tn_rate_availability_row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+    align-items: center;
+    padding: 4px 0 8px;
+}
+
+.tn_construction_project_form .tn_rate_availability_item {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.tn_construction_project_form .tn_rate_availability_item .o_field_boolean {
+    margin: 0;
+}
+
+.tn_construction_project_form .tn_rate_availability_item label {
+    margin: 0;
+    color: var(--tn-construction-ink);
+    font-weight: 700;
+}
+
+.tn_construction_project_form .tn_task_title_row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.tn_construction_project_form .tn_task_title_row .oe_title {
+    min-width: 0;
+}
+
+.tn_construction_project_form .tn_task_priority_state {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.tn_construction_project_form .tn_task_priority_state .o_priority {
+    font-size: 22px;
+}
+
+@media (max-width: 768px) {
+    .tn_construction_project_form .tn_task_title_row {
+        display: block;
+    }
+
+    .tn_construction_project_form .tn_task_priority_state {
+        margin: 4px 0 12px;
+    }
+}
+
+.tn_construction_stakeholder_card {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    min-height: 96px;
+}
+
+.tn_construction_avatar img {
+    border-radius: 8px;
+}

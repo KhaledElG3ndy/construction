@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tn_construction_task_search" model="ir.ui.view">
+        <field name="name">tn.construction.task.search</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <search string="Tasks">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="construction_sub_project_id"/>
+                <field name="construction_work_order_id"/>
+                <field name="user_ids"/>
+                <field name="tag_ids"/>
+                <field name="stage_id"/>
+                <field name="priority"/>
+                <filter string="Open" name="open_tasks" domain="[('state', 'not in', ['1_done', '1_canceled'])]"/>
+                <filter string="My Tasks" name="my_tasks" domain="[('user_ids', 'in', uid)]"/>
+                <filter string="High Priority" name="high_priority" domain="[('priority', '=', '1')]"/>
+                <filter string="Low Priority" name="low_priority" domain="[('priority', '=', '0')]"/>
+                <separator/>
+                <filter string="Stage" name="group_stage" context="{'group_by': 'stage_id'}"/>
+                <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                <filter string="Assignee" name="group_user" context="{'group_by': 'user_ids'}"/>
+                <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_task_kanban" model="ir.ui.view">
+        <field name="name">tn.construction.task.kanban</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id"
+                    class="o_kanban_small_column o_kanban_project_tasks tn_construction_task_kanban"
+                    on_create="quick_create"
+                    quick_create_view="project.quick_create_task_form"
+                    default_order="priority desc, sequence, state, date_deadline asc, id desc">
+                <field name="stage_id"/>
+                <field name="state"/>
+                <field name="priority"/>
+                <field name="project_id"/>
+                <field name="date_deadline"/>
+                <field name="user_ids"/>
+                <field name="tag_ids"/>
+                <field name="construction_sub_project_id"/>
+                <progressbar field="state" colors='{"1_done": "success-done", "1_canceled": "danger", "03_approved": "success", "02_changes_requested": "warning", "04_waiting_normal": "info", "01_in_progress": "200"}'/>
+                <templates>
+                    <t t-name="card">
+                        <main t-att-class="['1_done', '1_canceled'].includes(record.state.raw_value) ? 'opacity-50' : ''">
+                            <field name="name" class="fw-bold"/>
+                            <div class="text-muted d-flex flex-column mt-1">
+                                <field name="project_id" options="{'no_open': True}"/>
+                                <field t-if="record.construction_sub_project_id.raw_value" name="construction_sub_project_id" options="{'no_open': True}"/>
+                            </div>
+                            <field name="date_deadline" widget="remaining_days" invisible="not date_deadline or state in ['1_done', '1_canceled']"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <footer class="pt-2">
+                                <div class="d-flex align-items-center gap-1">
+                                    <field name="priority" widget="priority"/>
+                                    <field name="activity_ids" widget="kanban_activity"/>
+                                </div>
+                                <div class="d-flex ms-auto align-items-center">
+                                    <field name="user_ids" widget="many2many_avatar_user"/>
+                                    <field name="state" widget="project_task_state_selection" options="{'is_toggle_mode': false}"/>
+                                </div>
+                            </footer>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_task_list" model="ir.ui.view">
+        <field name="name">tn.construction.task.list</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <list string="Tasks"
+                  js_class="project_task_list"
+                  default_group_by="stage_id"
+                  default_order="priority desc, sequence, state, date_deadline asc, id desc"
+                  multi_edit="1">
+                <field name="sequence" readonly="1" column_invisible="True"/>
+                <field name="state" widget="project_task_state_selection" nolabel="1" width="20px" options="{'is_toggle_mode': false}"/>
+                <field name="name" string="Title" widget="name_with_subtask_count"/>
+                <field name="project_id" string="Project" widget="project" optional="show" options="{'no_open': 1}"/>
+                <field name="user_ids" string="Assignees" widget="many2many_avatar_user" optional="show"/>
+                <field name="construction_time_spent" string="Time Spent" widget="float_time" optional="show" sum="Time Spent"/>
+                <field name="construction_progress" string="Progress" widget="percentage" optional="show" avg="Progress"/>
+                <field name="priority" widget="priority" optional="show"/>
+                <field name="activity_ids" string="Next Activity" widget="list_activity" optional="show"/>
+                <field name="tag_ids" string="Tags" widget="many2many_tags" options="{'color_field': 'color'}" optional="show"/>
+                <field name="stage_id" string="Stage" optional="show"/>
+                <field name="construction_work_order_id" optional="hide"/>
+                <field name="construction_sub_project_id" optional="hide"/>
+                <field name="date_deadline" optional="hide" widget="remaining_days" invisible="state in ['1_done', '1_canceled']"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_task_form" model="ir.ui.view">
+        <field name="name">tn.construction.task.form</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <form string="Tasks" class="o_form_project_tasks tn_construction_project_form">
+                <field name="state" invisible="1"/>
+                <field name="active" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <header>
+                    <button name="action_construction_task_start" type="object" string="Start" class="btn-primary" invisible="state in ['01_in_progress', '1_done', '1_canceled']"/>
+                    <field name="stage_id" widget="statusbar_duration" options="{'clickable': '1', 'fold_field': 'fold'}"/>
+                </header>
+                <sheet>
+                    <div class="tn_task_title_row">
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Task Title..." class="text-break"/>
+                            </h1>
+                        </div>
+                        <div class="tn_task_priority_state">
+                            <field name="priority" widget="priority"/>
+                            <field name="state" widget="project_task_state_selection"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id" string="Project" widget="project"/>
+                            <field name="user_ids" string="Assignees" widget="many2many_avatar_user"/>
+                        </group>
+                        <group>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" context="{'project_id': project_id}"/>
+                            <field name="construction_work_order_id" string="Work Order"/>
+                            <field name="construction_sub_project_id" string="Construction Project"/>
+                            <field name="partner_id" string="Customer" widget="res_partner_many2one"/>
+                            <field name="date_deadline" string="Deadline" decoration-danger="date_deadline and date_deadline &lt; current_date and state not in ['1_done', '1_canceled']"/>
+                            <label for="allocated_hours"/>
+                            <div class="d-flex align-items-center gap-2">
+                                <field name="allocated_hours" nolabel="1" widget="float_time"/>
+                                <span>(</span>
+                                <field name="construction_progress" nolabel="1" widget="percentage"/>
+                                <span>)</span>
+                            </div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="description" string="Description">
+                            <field name="description" type="html" options="{'collaborative': true, 'resizable': false}" placeholder="Add details about this task..."/>
+                        </page>
+                        <page name="timesheets" string="Timesheets">
+                            <field name="construction_timesheet_ids">
+                                <list editable="bottom">
+                                    <field name="date"/>
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                    <field name="description"/>
+                                    <field name="hours" widget="float_time" sum="Hours"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="sub_tasks" string="Sub-tasks">
+                            <field name="child_ids"
+                                   context="{
+                                       'default_project_id': project_id,
+                                       'default_parent_id': id,
+                                       'default_user_ids': user_ids,
+                                       'default_partner_id': partner_id,
+                                       'default_construction_work_order_id': construction_work_order_id,
+                                       'default_construction_sub_project_id': construction_sub_project_id
+                                   }">
+                                <list editable="bottom" open_form_view="True" decoration-muted="state in ['1_done', '1_canceled']">
+                                    <field name="state" widget="project_task_state_selection" nolabel="1" width="20px"/>
+                                    <field name="name" string="Title"/>
+                                    <field name="project_id" widget="project"/>
+                                    <field name="user_ids" widget="many2many_avatar_user"/>
+                                    <field name="date_deadline"/>
+                                    <field name="stage_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_tasks" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph,activity</field>
+        <field name="domain">[('display_in_project', '=', True)]</field>
+        <field name="context">{'search_default_group_stage': 1, 'default_user_ids': [(4, uid)], 'default_display_in_project': True}</field>
+        <field name="search_view_id" ref="view_tn_construction_task_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks found. Create the first construction task.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_tn_construction_tasks_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="10"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_tn_construction_task_kanban"/>
+        <field name="act_window_id" ref="action_tn_construction_tasks"/>
+    </record>
+
+    <record id="action_tn_construction_tasks_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="20"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_tn_construction_task_list"/>
+        <field name="act_window_id" ref="action_tn_construction_tasks"/>
+    </record>
+
+    <record id="action_tn_construction_tasks_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="30"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_tn_construction_task_form"/>
+        <field name="act_window_id" ref="action_tn_construction_tasks"/>
+    </record>
+
+    <record id="action_tn_construction_tasks_calendar" model="ir.actions.act_window.view">
+        <field name="sequence" eval="40"/>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="project.view_task_all_calendar"/>
+        <field name="act_window_id" ref="action_tn_construction_tasks"/>
+    </record>
+</odoo>
