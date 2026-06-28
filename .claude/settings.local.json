@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(/opt/odoo18/venv/bin/python3 -m py_compile tn_construction_boq/models/*.py)",
-      "Bash(/opt/odoo18/venv/bin/python3 -)"
-    ]
-  }
-}
