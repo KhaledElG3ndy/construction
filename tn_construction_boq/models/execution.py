@@ -1,4 +1,5 @@
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 from odoo.tools.safe_eval import safe_eval
 
 
@@ -86,7 +87,16 @@ class TnConstructionPhase(models.Model):
             'res_model': 'tn.construction.work.order',
             'view_mode': 'list,form',
             'domain': [('phase_id', '=', self.id)],
-            'context': {'default_phase_id': self.id, 'default_project_id': self.project_id.id, 'default_sub_project_id': self.sub_project_id.id},
+            'context': {
+                'default_phase_id': self.id,
+                'default_project_id': self.project_id.id,
+                'default_sub_project_id': self.sub_project_id.id,
+                'default_company_id': self.company_id.id,
+                'default_project_warehouse_id': (
+                    self.sub_project_id.project_warehouse_id.id
+                    or self.project_id.project_warehouse_id.id
+                ),
+            },
         }
 
     def action_view_material_requests(self):
@@ -97,7 +107,16 @@ class TnConstructionPhase(models.Model):
             'res_model': 'tn.construction.material.request',
             'view_mode': 'list,form',
             'domain': [('phase_id', '=', self.id)],
-            'context': {'default_phase_id': self.id, 'default_project_id': self.project_id.id, 'default_sub_project_id': self.sub_project_id.id},
+            'context': {
+                'default_phase_id': self.id,
+                'default_project_id': self.project_id.id,
+                'default_sub_project_id': self.sub_project_id.id,
+                'default_company_id': self.company_id.id,
+                'default_project_warehouse_id': (
+                    self.sub_project_id.project_warehouse_id.id
+                    or self.project_id.project_warehouse_id.id
+                ),
+            },
         }
 
 
@@ -171,6 +190,12 @@ class TnConstructionWorkOrder(models.Model):
     phase_id = fields.Many2one('tn.construction.phase', string='Project Phase(WBS)', domain="[('project_id', '=', project_id)]")
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company, required=True)
     warehouse_id = fields.Many2one('res.company', string='Warehouse', default=lambda self: self.env.company)
+    project_warehouse_id = fields.Many2one(
+        'stock.warehouse',
+        string='Project Warehouse',
+        domain="[('company_id', 'in', [company_id, False])]",
+        help='Default warehouse used for material movements, receipts, issues, and returns related to this project.',
+    )
     start_date = fields.Date()
     end_date = fields.Date()
     work_type = fields.Char()
@@ -204,6 +229,7 @@ class TnConstructionWorkOrder(models.Model):
             if order.project_id:
                 order.company_id = order.project_id.company_id
                 order.warehouse_id = order.project_id.warehouse_id or order.project_id.company_id
+                order.project_warehouse_id = order.project_id.project_warehouse_id
 
     @api.onchange('sub_project_id')
     def _onchange_sub_project_id(self):
@@ -212,6 +238,26 @@ class TnConstructionWorkOrder(models.Model):
                 order.project_id = order.sub_project_id.project_id
                 order.company_id = order.sub_project_id.company_id
                 order.warehouse_id = order.sub_project_id.warehouse_id or order.sub_project_id.company_id
+                order.project_warehouse_id = (
+                    order.sub_project_id.project_warehouse_id
+                    or order.project_id.project_warehouse_id
+                )
+
+    @api.constrains('project_warehouse_id', 'company_id')
+    def _check_project_warehouse_company(self):
+        for order in self:
+            warehouse_company = order.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != order.company_id:
+                raise ValidationError(
+                    _('The Project Warehouse must belong to the same company as the project.')
+                )
+
+    @api.onchange('company_id')
+    def _onchange_company_id_project_warehouse(self):
+        for order in self:
+            warehouse_company = order.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != order.company_id:
+                order.project_warehouse_id = False
 
     def _compute_counts(self):
         MaterialRequest = self.env['tn.construction.material.request']
@@ -219,6 +265,26 @@ class TnConstructionWorkOrder(models.Model):
             order.material_request_count = MaterialRequest.search_count([('work_order_id', '=', order.id)])
             order.subcontract_count = len(order.equipment_line_ids) + len(order.labour_line_ids) + len(order.overhead_line_ids)
             order.timesheet_hours = sum(order.labour_line_ids.mapped('hours'))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            project = self.env['project.project'].browse(vals.get('project_id'))
+            sub_project = self.env['tn.construction.sub.project'].browse(vals.get('sub_project_id'))
+            if sub_project:
+                project = sub_project.project_id
+                vals.setdefault('project_id', project.id)
+                vals.setdefault('company_id', sub_project.company_id.id)
+                vals.setdefault('warehouse_id', (sub_project.warehouse_id or sub_project.company_id).id)
+                vals.setdefault(
+                    'project_warehouse_id',
+                    (sub_project.project_warehouse_id or project.project_warehouse_id).id,
+                )
+            elif project:
+                vals.setdefault('company_id', project.company_id.id)
+                vals.setdefault('warehouse_id', (project.warehouse_id or project.company_id).id)
+                vals.setdefault('project_warehouse_id', project.project_warehouse_id.id)
+        return super().create(vals_list)
 
     def action_complete(self):
         self.write({'state': 'completed'})
@@ -236,6 +302,7 @@ class TnConstructionWorkOrder(models.Model):
                 'default_project_id': self.project_id.id,
                 'default_sub_project_id': self.sub_project_id.id,
                 'default_work_type': self.work_type,
+                'default_project_warehouse_id': self.project_warehouse_id.id,
             },
         }
 
@@ -688,6 +755,12 @@ class TnConstructionMaterialRequest(models.Model):
     project_id = fields.Many2one('project.project', required=True, ondelete='cascade')
     sub_project_id = fields.Many2one('tn.construction.sub.project', domain="[('project_id', '=', project_id)]")
     warehouse_id = fields.Many2one('res.company', string='Warehouse', default=lambda self: self.env.company)
+    project_warehouse_id = fields.Many2one(
+        'stock.warehouse',
+        string='Project Warehouse',
+        domain="[('company_id', 'in', [company_id, False])]",
+        help='Default warehouse used for material movements, receipts, issues, and returns related to this project.',
+    )
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company, required=True)
     date = fields.Datetime(default=fields.Datetime.now)
     created_by_id = fields.Many2one('res.users', default=lambda self: self.env.user)
@@ -721,16 +794,92 @@ class TnConstructionMaterialRequest(models.Model):
                 request.phase_id = order.phase_id
                 request.company_id = order.company_id
                 request.warehouse_id = order.warehouse_id
+                request.project_warehouse_id = (
+                    order.project_warehouse_id
+                    or order.project_id.project_warehouse_id
+                )
                 request.work_type = order.work_type
+
+    @api.onchange('project_id')
+    def _onchange_project_id_project_warehouse(self):
+        for request in self:
+            if request.project_id:
+                request.company_id = request.project_id.company_id
+                request.warehouse_id = request.project_id.warehouse_id or request.project_id.company_id
+                request.project_warehouse_id = request.project_id.project_warehouse_id
+
+    @api.onchange('sub_project_id')
+    def _onchange_sub_project_id_project_warehouse(self):
+        for request in self:
+            if request.sub_project_id:
+                request.project_id = request.sub_project_id.project_id
+                request.company_id = request.sub_project_id.company_id
+                request.warehouse_id = request.sub_project_id.warehouse_id or request.sub_project_id.company_id
+                request.project_warehouse_id = (
+                    request.sub_project_id.project_warehouse_id
+                    or request.project_id.project_warehouse_id
+                )
+
+    @api.constrains('project_warehouse_id', 'company_id')
+    def _check_project_warehouse_company(self):
+        for request in self:
+            warehouse_company = request.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != request.company_id:
+                raise ValidationError(
+                    _('The Project Warehouse must belong to the same company as the project.')
+                )
+
+    @api.onchange('company_id')
+    def _onchange_company_id_project_warehouse(self):
+        for request in self:
+            warehouse_company = request.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != request.company_id:
+                request.project_warehouse_id = False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            order = self.env['tn.construction.work.order'].browse(vals.get('work_order_id'))
+            project = self.env['project.project'].browse(vals.get('project_id'))
+            sub_project = self.env['tn.construction.sub.project'].browse(vals.get('sub_project_id'))
+            if order:
+                project = order.project_id
+                vals.setdefault('project_id', project.id)
+                vals.setdefault('sub_project_id', order.sub_project_id.id)
+                vals.setdefault('phase_id', order.phase_id.id)
+                vals.setdefault('company_id', order.company_id.id)
+                vals.setdefault('warehouse_id', order.warehouse_id.id)
+                vals.setdefault(
+                    'project_warehouse_id',
+                    (order.project_warehouse_id or project.project_warehouse_id).id,
+                )
+                vals.setdefault('work_type', order.work_type)
+            elif sub_project:
+                project = sub_project.project_id
+                vals.setdefault('project_id', project.id)
+                vals.setdefault('company_id', sub_project.company_id.id)
+                vals.setdefault('warehouse_id', (sub_project.warehouse_id or sub_project.company_id).id)
+                vals.setdefault(
+                    'project_warehouse_id',
+                    (sub_project.project_warehouse_id or project.project_warehouse_id).id,
+                )
+            elif project:
+                vals.setdefault('company_id', project.company_id.id)
+                vals.setdefault('warehouse_id', (project.warehouse_id or project.company_id).id)
+                vals.setdefault('project_warehouse_id', project.project_warehouse_id.id)
+        return super().create(vals_list)
 
     def action_create_po(self):
         self.ensure_one()
+        context = {'default_origin': self.sequence_code}
+        if self.project_warehouse_id.in_type_id:
+            context['default_picking_type_id'] = self.project_warehouse_id.in_type_id.id
         return {
             'type': 'ir.actions.act_window',
             'name': _('Purchase Orders'),
             'res_model': 'purchase.order',
             'view_mode': 'list,form',
-            'context': {'default_origin': self.sequence_code},
+            'context': context,
         }
 
 

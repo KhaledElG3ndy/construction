@@ -33,6 +33,7 @@
 
 .tn_cd_header {
     position: relative;
+    z-index: 20;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -41,7 +42,7 @@
     padding: 28px 30px;
     border: 1px solid #d8e4f4;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
     background:
         linear-gradient(90deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 242, 255, 0.9) 42%, rgba(218, 241, 255, 0.82) 100%),
         linear-gradient(135deg, rgba(76, 103, 255, 0.13), rgba(55, 184, 238, 0.16));
@@ -85,13 +86,24 @@
 }
 
 .tn_cd_header_tools {
+    position: relative;
+    z-index: 30;
     display: flex;
     flex-wrap: wrap;
     justify-content: end;
     gap: 16px;
 }
 
-.tn_cd_header_tools span {
+.tn_cd_tool_wrap {
+    position: relative;
+    z-index: 1;
+}
+
+.tn_cd_tool_wrap:has(.tn_cd_dropdown) {
+    z-index: 40;
+}
+
+.tn_cd_tool_button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -106,10 +118,189 @@
     font-size: 14px;
     font-weight: 900;
     white-space: nowrap;
+    cursor: pointer;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.tn_cd_header_tools i {
+.tn_cd_tool_button:hover,
+.tn_cd_tool_button:focus-visible {
+    border-color: #bdd0f3;
+    box-shadow: 0 12px 24px rgba(34, 50, 100, 0.12);
+    transform: translateY(-1px);
+}
+
+.tn_cd_tool_button:focus-visible {
+    outline: 3px solid rgba(52, 112, 255, 0.22);
+    outline-offset: 2px;
+}
+
+.tn_cd_tool_button i {
     color: #2f46bd;
+}
+
+.tn_cd_tool_button strong {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    color: #ffffff;
+    background: #5148e5;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 950;
+}
+
+.tn_cd_dropdown {
+    position: absolute;
+    z-index: 100;
+    inset-inline-end: 0;
+    top: calc(100% + 10px);
+    width: calc(100vw - 56px);
+    max-width: 480px;
+    padding: 16px;
+    border: 1px solid #dbe5f4;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 24px 50px rgba(27, 39, 86, 0.16);
+}
+
+.tn_cd_date_dropdown {
+    max-width: 430px;
+}
+
+.tn_cd_preset_grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.tn_cd_filter_pill,
+.tn_cd_filter_actions button,
+.tn_cd_active_filters button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 34px;
+    border: 1px solid #dce5f3;
+    border-radius: 7px;
+    color: #22315c;
+    background: #f8fbff;
+    font-size: 12px;
+    line-height: 1.15;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.tn_cd_filter_pill:hover,
+.tn_cd_filter_pill.is-active,
+.tn_cd_filter_actions button:hover,
+.tn_cd_active_filters button:hover {
+    border-color: #b9c9ef;
+    color: #17235a;
+    background: #eef4ff;
+}
+
+.tn_cd_filter_pill.is-active {
+    box-shadow: inset 0 0 0 1px rgba(81, 72, 229, 0.18);
+}
+
+.tn_cd_date_inputs,
+.tn_cd_filter_grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.tn_cd_date_inputs {
+    margin-top: 13px;
+}
+
+.tn_cd_filter_grid {
+    grid-template-columns: 1fr;
+}
+
+.tn_cd_date_inputs label,
+.tn_cd_filter_grid label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.tn_cd_date_inputs label span,
+.tn_cd_filter_grid label span {
+    color: #596985;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 900;
+}
+
+.tn_cd_date_inputs input,
+.tn_cd_filter_grid select {
+    width: 100%;
+    min-height: 38px;
+    padding: 7px 10px;
+    border: 1px solid #d6e0ef;
+    border-radius: 7px;
+    color: #17235a;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 850;
+}
+
+.tn_cd_date_inputs input:focus,
+.tn_cd_filter_grid select:focus {
+    border-color: #9fb6ef;
+    outline: 3px solid rgba(52, 112, 255, 0.16);
+}
+
+.tn_cd_filter_actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 13px;
+    padding-top: 13px;
+    border-top: 1px solid #e6ecf7;
+}
+
+.tn_cd_filter_actions button {
+    padding: 0 12px;
+}
+
+.tn_cd_active_filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.tn_cd_active_filters button {
+    width: 100%;
+    max-width: 360px;
+    padding: 0 11px;
+    color: #1f3972;
+    background: #eaf3ff;
+}
+
+.tn_cd_active_filters button span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tn_cd_active_filters button i {
+    color: #52648a;
+    font-size: 11px;
+}
+
+.tn_cd_refreshing {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    color: #596bd8;
 }
 
 .tn_cd_section_title {
@@ -619,6 +810,22 @@
     .tn_cd_header_tools {
         display: grid;
         justify-content: stretch;
+    }
+
+    .tn_cd_tool_button,
+    .tn_cd_tool_wrap {
+        width: 100%;
+    }
+
+    .tn_cd_dropdown {
+        position: static;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .tn_cd_preset_grid,
+    .tn_cd_date_inputs {
+        grid-template-columns: 1fr;
     }
 
     .tn_cd_header {

@@ -1,0 +1,260 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* tn_construction_boq
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-28 00:00+0000\n"
+"PO-Revision-Date: 2026-06-28 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar_001\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project__project_id
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__project_id
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_boq_list
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_boq_search
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_form
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_list
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_search
+msgid "Parent Project"
+msgstr "المشروع الرئيسي"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__project_code
+msgid "Project Code"
+msgstr "كود المشروع"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__contract_reference
+msgid "Contract Reference"
+msgstr "مرجع العقد"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__contract_value
+msgid "Contract Value"
+msgstr "قيمة العقد"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__actual_start_date
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project__actual_start_date
+msgid "Actual Start Date"
+msgstr "تاريخ البداية الفعلي"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__actual_end_date
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project__actual_end_date
+msgid "Actual End Date"
+msgstr "تاريخ النهاية الفعلي"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project__responsible_engineer_id
+msgid "Responsible Engineer"
+msgstr "المهندس المسؤول"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project__site_zone
+msgid "Zone / Block / Floor"
+msgstr "المنطقة / البلوك / الطابق"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Customer / Client"
+msgstr "العميل"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Project Manager"
+msgstr "مدير المشروع"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Analytic Account / Cost Center"
+msgstr "الحساب التحليلي / مركز التكلفة"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Project Management"
+msgstr "إدارة المشروع"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Contract"
+msgstr "العقد"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Planning"
+msgstr "التخطيط"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_form
+msgid "Execution"
+msgstr "التنفيذ"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_form
+msgid "Schedule & Progress"
+msgstr "الجدول الزمني ونسبة الإنجاز"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_form
+msgid "Sub Project Site Location"
+msgstr "موقع المشروع الفرعي"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_form
+msgid "Planned Start Date"
+msgstr "تاريخ البداية المخطط"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_form
+msgid "Planned End Date"
+msgstr "تاريخ النهاية المخطط"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Overall Progress"
+msgstr "نسبة الإنجاز الإجمالية"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_form
+msgid "Map Location"
+msgstr "موقع الخريطة"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Stakeholders"
+msgstr "أصحاب العلاقة"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__construction_boq_summary_count
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "BOQ Summary"
+msgstr "ملخص جدول الكميات"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__construction_budget_summary_count
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_project_form_inherit_tn_boq
+msgid "Budget Summary"
+msgstr "ملخص الميزانية"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__construction_work_order_count
+msgid "Work Orders"
+msgstr "أوامر العمل"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__construction_material_requisition_count
+msgid "Material Requisitions"
+msgstr "طلبات المواد"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__construction_purchase_order_count
+msgid "Purchase Orders"
+msgstr "أوامر الشراء"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__construction_stock_transfer_count
+msgid "Stock Transfers"
+msgstr "تحويلات المخزون"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__construction_measurement_count
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project__measurement_ids
+msgid "Measurements"
+msgstr "القياسات"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__item_code
+msgid "BOQ Item Code"
+msgstr "كود بند المقايسة"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__description
+msgid "Description"
+msgstr "الوصف"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__uom_id
+msgid "UoM"
+msgstr "وحدة القياس"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__unit_rate
+msgid "Unit Rate"
+msgstr "سعر الوحدة"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__total_amount
+msgid "Total Amount"
+msgstr "إجمالي القيمة"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__executed_qty
+msgid "Executed Qty"
+msgstr "الكمية المنفذة"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__remaining_qty
+msgid "Remaining Qty"
+msgstr "الكمية المتبقية"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project_boq__sub_project_id
+msgid "Sub Project"
+msgstr "المشروع الفرعي"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_boq_form
+msgid "Classification"
+msgstr "التصنيف"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_boq_form
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_boq_form
+msgid "Costing & Progress"
+msgstr "التكلفة والإنجاز"
+
+#. module: tn_construction_boq
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_boq_form
+msgid "Links"
+msgstr "الروابط"
+
+#. module: tn_construction_boq
+#: code:addons/tn_construction_boq/models/project_project.py:0
+#, python-format
+msgid "Total Qty cannot be negative."
+msgstr "لا يمكن أن تكون الكمية الإجمالية سالبة."
+
+#. module: tn_construction_boq
+#: code:addons/tn_construction_boq/models/project_project.py:0
+#, python-format
+msgid "Unit Rate cannot be negative."
+msgstr "لا يمكن أن يكون سعر الوحدة سالبا."
+
+#. module: tn_construction_boq
+#: code:addons/tn_construction_boq/models/project_project.py:0
+#, python-format
+msgid "Executed Qty cannot be negative."
+msgstr "لا يمكن أن تكون الكمية المنفذة سالبة."
+
+#. module: tn_construction_boq
+#: code:addons/tn_construction_boq/models/project_project.py:0
+#, python-format
+msgid "Executed Qty cannot be greater than Total Qty."
+msgstr "لا يمكن أن تكون الكمية المنفذة أكبر من الكمية الإجمالية."

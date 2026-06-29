@@ -48,11 +48,29 @@
                         icon="fa-briefcase">
                     <field name="construction_sub_project_count" widget="statinfo" string="Sub Projects"/>
                 </button>
+                <button type="object" name="action_view_boq_summary" class="oe_stat_button" icon="fa-list">
+                    <field name="construction_boq_summary_count" widget="statinfo" string="BOQ Summary"/>
+                </button>
+                <button type="object" name="action_view_budget_summary" class="oe_stat_button" icon="fa-folder">
+                    <field name="construction_budget_summary_count" widget="statinfo" string="Budget Summary"/>
+                </button>
+                <button type="object" name="action_view_project_work_orders" class="oe_stat_button" icon="fa-folder-open">
+                    <field name="construction_work_order_count" widget="statinfo" string="Work Orders"/>
+                </button>
+                <button type="object" name="action_view_project_material_requisitions" class="oe_stat_button" icon="fa-cogs">
+                    <field name="construction_material_requisition_count" widget="statinfo" string="Material Requisitions"/>
+                </button>
                 <button type="object"
-                        name="action_view_project_map"
+                        name="action_view_progress_billing"
                         class="oe_stat_button"
-                        icon="fa-location-arrow">
-                    <span class="o_stat_text">Map Location</span>
+                        icon="fa-credit-card">
+                    <field name="progress_billing_count" widget="statinfo" string="Progress Billing"/>
+                </button>
+                <button type="object" name="action_view_construction_tasks" class="oe_stat_button" icon="fa-tasks">
+                    <field name="construction_task_count" widget="statinfo" string="Tasks"/>
+                </button>
+                <button type="object" name="action_view_construction_inspection_tasks" class="oe_stat_button" icon="fa-star">
+                    <field name="construction_inspection_task_count" widget="statinfo" string="Inspection Tasks"/>
                 </button>
                 <button type="object"
                         name="action_view_project_documents"
@@ -60,11 +78,20 @@
                         icon="fa-file-text">
                     <field name="document_count" widget="statinfo" string="Documents"/>
                 </button>
+                <button type="object" name="action_view_project_purchase_orders" class="oe_stat_button" icon="fa-shopping-cart">
+                    <field name="construction_purchase_order_count" widget="statinfo" string="Purchase Orders"/>
+                </button>
+                <button type="object" name="action_view_project_stock_transfers" class="oe_stat_button" icon="fa-truck">
+                    <field name="construction_stock_transfer_count" widget="statinfo" string="Stock Transfers"/>
+                </button>
+                <button type="object" name="action_view_project_measurements" class="oe_stat_button" icon="fa-calculator">
+                    <field name="construction_measurement_count" widget="statinfo" string="Measurements"/>
+                </button>
                 <button type="object"
-                        name="action_view_progress_billing"
+                        name="action_view_project_map"
                         class="oe_stat_button"
-                        icon="fa-credit-card">
-                    <field name="progress_billing_count" widget="statinfo" string="Progress Billing"/>
+                        icon="fa-location-arrow">
+                    <span class="o_stat_text">Map Location</span>
                 </button>
                 <button type="object"
                         name="action_view_project_gantt"
@@ -76,11 +103,31 @@
 
             <xpath expr="//sheet/group[1]" position="replace">
                 <group class="tn_construction_overview">
-                    <group>
-                        <field name="warehouse_id"/>
-                    </group>
-                    <group>
+                    <group string="Project Management">
+                        <field name="project_code"/>
+                        <field name="partner_id" string="Customer / Client"/>
                         <field name="company_id"/>
+                        <field name="user_id" string="Project Manager"/>
+                        <field name="account_id" string="Analytic Account / Cost Center"/>
+                        <field name="project_warehouse_id"/>
+                    </group>
+                    <group string="Contract">
+                        <field name="contract_reference"/>
+                        <field name="contract_value"/>
+                        <field name="currency_id"/>
+                        <field name="progress_percent" widget="progressbar" string="Overall Progress"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Planning">
+                        <field name="date_start" string="Planned Start Date"/>
+                        <field name="date" string="Planned End Date"/>
+                        <field name="actual_start_date"/>
+                        <field name="actual_end_date"/>
+                    </group>
+                    <group string="Map Location">
+                        <field name="longitude"/>
+                        <field name="latitude"/>
                     </group>
                 </group>
                 <group>
@@ -92,16 +139,6 @@
                         <field name="address_zip"/>
                         <field name="address_country_id"/>
                     </group>
-                    <group string="Duration">
-                        <field name="date_start" string="Start Date"/>
-                        <field name="date" string="End Date"/>
-                    </group>
-                </group>
-                <group>
-                    <group string="Geographic Location">
-                        <field name="longitude"/>
-                        <field name="latitude"/>
-                    </group>
                     <group string="Contact Details">
                         <field name="phone" widget="phone"/>
                         <field name="mobile" widget="phone"/>
@@ -112,41 +149,35 @@
 
             <xpath expr="//notebook/page[@name='description']" position="before">
                 <page name="construction_sub_projects" string="Sub Projects">
-                    <field name="construction_sub_project_ids" context="{'default_project_id': id, 'default_company_id': company_id}">
+                    <field name="construction_sub_project_ids" context="{'default_project_id': id, 'default_company_id': company_id, 'default_project_warehouse_id': project_warehouse_id}">
                         <list editable="bottom" decoration-success="stage == 'done'" decoration-info="stage == 'construction'">
                             <field name="sequence" widget="handle"/>
                             <field name="name"/>
                             <field name="company_id"/>
-                            <field name="stage" widget="badge"
-                                   decoration-warning="stage == 'planning'"
-                                   decoration-info="stage in ('procurement', 'construction')"
-                                   decoration-success="stage in ('handover', 'done')"/>
+                            <field name="stage"/>
                             <field name="progress" widget="progressbar"/>
                         </list>
                         <form string="Sub Project">
                             <sheet>
                                 <div class="oe_button_box" name="button_box">
-                                    <button name="action_view_budget_analysis" type="object" class="oe_stat_button" icon="fa-briefcase">
-                                        <field name="budget_line_count" widget="statinfo" string="Budget Analysis"/>
+                                    <button name="action_view_boq_items" type="object" class="oe_stat_button" icon="fa-list">
+                                        <field name="boq_count" widget="statinfo" string="BOQ"/>
                                     </button>
                                     <button name="action_view_work_orders" type="object" class="oe_stat_button" icon="fa-folder-open">
-                                        <field name="work_order_count" widget="statinfo" string="Work Order"/>
+                                        <field name="work_order_count" widget="statinfo" string="Work Orders"/>
                                     </button>
-                                    <button name="action_view_work_order_po" type="object" class="oe_stat_button" icon="fa-list">
-                                        <field name="purchase_order_count" widget="statinfo" string="Work Order PO"/>
+                                    <button name="action_view_material_requisitions" type="object" class="oe_stat_button" icon="fa-cogs">
+                                        <field name="material_requisition_count" widget="statinfo" string="Material Requisitions"/>
                                     </button>
-                                    <button name="action_view_mreq" type="object" class="oe_stat_button" icon="fa-cogs">
-                                        <span class="o_stat_text">MREQ</span>
-                                    </button>
-                                    <button name="action_view_mreq_po" type="object" class="oe_stat_button" icon="fa-list-alt">
-                                        <span class="o_stat_text">MREQ PO</span>
+                                    <button name="action_view_budget_lines" type="object" class="oe_stat_button" icon="fa-folder">
+                                        <field name="budget_line_count" widget="statinfo" string="Budget Summary"/>
                                     </button>
                                 </div>
                                 <group>
                                     <group>
                                         <field name="name"/>
-                                        <field name="project_id"/>
-                                        <field name="company_id"/>
+                                        <field name="project_id" string="Parent Project"/>
+                                        <field name="company_id" readonly="1"/>
                                     </group>
                                     <group>
                                         <field name="stage"/>
@@ -158,7 +189,7 @@
                         </form>
                     </field>
                 </page>
-                <page name="construction_stakeholders" string="StackHolder">
+                <page name="construction_stakeholders" string="Stakeholders">
                     <field name="stakeholder_ids" context="{'default_project_id': id}">
                         <kanban>
                             <field name="partner_id"/>
@@ -222,17 +253,6 @@
                         </form>
                     </field>
                 </page>
-                <page name="construction_measurements" string="Project Measurement">
-                    <field name="measurement_ids" context="{'default_project_id': id}">
-                        <list editable="bottom">
-                            <field name="sequence" widget="handle"/>
-                            <field name="title"/>
-                            <field name="length"/>
-                            <field name="width"/>
-                            <field name="area"/>
-                        </list>
-                    </field>
-                </page>
                 <page name="construction_permits" string="Permits &amp; Approvals">
                     <field name="permit_ids" context="{'default_project_id': id}">
                         <list editable="bottom">
@@ -241,10 +261,7 @@
                             <field name="attachment_ids" widget="many2many_binary"/>
                             <field name="submitted_by_id"/>
                             <field name="feedback"/>
-                            <field name="status" widget="badge"
-                                   decoration-warning="status == 'pending'"
-                                   decoration-success="status == 'approved'"
-                                   decoration-danger="status == 'rejected'"/>
+                            <field name="status"/>
                         </list>
                     </field>
                 </page>
@@ -270,13 +287,16 @@
                   decoration-muted="stage == 'draft'"
                   decoration-info="stage in ('planning', 'procurement')"
                   decoration-success="stage in ('handover', 'done')">
-                <field name="name" string="Title"/>
-                <field name="project_id"/>
+                <field name="name" string="Sub Project Name"/>
+                <field name="project_id" string="Parent Project"/>
                 <field name="code"/>
-                <field name="warehouse_id"/>
-                <field name="related_project_id"/>
+                <field name="project_warehouse_id"/>
                 <field name="schedule_start_date"/>
                 <field name="schedule_end_date"/>
+                <field name="actual_start_date" optional="hide"/>
+                <field name="actual_end_date" optional="hide"/>
+                <field name="responsible_engineer_id" optional="show"/>
+                <field name="site_zone" optional="show"/>
                 <field name="progress" widget="progressbar"/>
                 <field name="stage" widget="badge"
                        decoration-muted="stage == 'draft'"
@@ -294,9 +314,11 @@
             <search string="Construction Sub Projects">
                 <field name="name"/>
                 <field name="code"/>
-                <field name="project_id"/>
+                <field name="project_id" string="Parent Project"/>
                 <field name="company_id"/>
-                <field name="warehouse_id"/>
+                <field name="project_warehouse_id"/>
+                <field name="responsible_engineer_id"/>
+                <field name="site_zone"/>
                 <filter name="stage_draft" string="Draft" domain="[('stage', '=', 'draft')]"/>
                 <filter name="stage_planning" string="Planning" domain="[('stage', '=', 'planning')]"/>
                 <filter name="stage_procurement" string="Procurement" domain="[('stage', '=', 'procurement')]"/>
@@ -304,8 +326,8 @@
                 <filter name="stage_handover" string="Handover" domain="[('stage', '=', 'handover')]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_stage" string="Stage" context="{'group_by': 'stage'}"/>
-                    <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
-                    <filter name="group_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
+                    <filter name="group_project" string="Parent Project" context="{'group_by': 'project_id'}"/>
+                    <filter name="group_project_warehouse" string="Project Warehouse" context="{'group_by': 'project_warehouse_id'}"/>
                 </group>
                 <searchpanel>
                     <field name="stage" string="Stage"/>
@@ -360,6 +382,9 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
+                        <button name="action_view_boq_items" type="object" class="oe_stat_button" icon="fa-list">
+                            <field name="boq_count" widget="statinfo" string="BOQ"/>
+                        </button>
                         <button name="action_view_progress_bills" type="object" class="oe_stat_button" icon="fa-tasks">
                             <field name="progress_billing_count" widget="statinfo" string="Progress Bills"/>
                         </button>
@@ -375,42 +400,41 @@
                         <button name="action_view_work_orders" type="object" class="oe_stat_button" icon="fa-folder-open">
                             <field name="work_order_count" widget="statinfo" string="Work Orders"/>
                         </button>
-                        <button name="action_view_mreq" type="object" class="oe_stat_button" icon="fa-cogs">
+                        <button name="action_view_material_requisitions" type="object" class="oe_stat_button" icon="fa-cogs">
                             <field name="material_requisition_count" widget="statinfo" string="Material Requisitions"/>
                         </button>
                         <button name="action_view_budget_lines" type="object" class="oe_stat_button" icon="fa-folder">
                             <field name="budget_line_count" widget="statinfo" string="Budget Lines"/>
                         </button>
+                        <button name="action_view_measurements" type="object" class="oe_stat_button" icon="fa-calculator">
+                            <field name="measurement_count" widget="statinfo" string="Measurements"/>
+                        </button>
                     </div>
                     <div class="oe_title">
                         <h1><field name="name" placeholder="e.g. Tower A Construction"/></h1>
-                        <h3><field name="project_id"/></h3>
                     </div>
                     <group>
-                        <group>
-                            <field name="code"/>
-                            <field name="warehouse_id"/>
-                            <field name="project_id"/>
-                            <field name="related_project_id"/>
+                        <group string="Execution">
+                            <field name="code" string="Sub Project Code"/>
+                            <field name="project_id" string="Parent Project"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="project_warehouse_id" readonly="1"/>
+                            <field name="responsible_engineer_id"/>
                             <field name="budget_id"/>
                         </group>
-                        <group>
+                        <group string="Schedule &amp; Progress">
                             <field name="progress" widget="progressbar"/>
                             <field name="stage"/>
+                            <field name="schedule_start_date" string="Planned Start Date"/>
+                            <field name="schedule_end_date" string="Planned End Date"/>
+                            <field name="actual_start_date"/>
+                            <field name="actual_end_date"/>
+                            <field name="create_uid" string="Created By" widget="many2one_avatar_user" readonly="1"/>
                         </group>
                     </group>
                     <group>
-                        <group string="Company">
-                            <field name="company_id"/>
-                        </group>
-                        <group string="Duration">
-                            <field name="schedule_start_date"/>
-                            <field name="schedule_end_date"/>
-                            <field name="create_uid" string="Created By" widget="many2one_avatar_user"/>
-                        </group>
-                    </group>
-                    <group>
-                        <group string="Address">
+                        <group string="Sub Project Site Location">
+                            <field name="site_zone"/>
                             <field name="address_street" string="Address"/>
                             <field name="address_street2"/>
                             <field name="address_city"/>
@@ -418,7 +442,7 @@
                             <field name="address_zip"/>
                             <field name="address_country_id"/>
                         </group>
-                        <group string="Geographic Location">
+                        <group string="Map Location">
                             <field name="longitude"/>
                             <field name="latitude"/>
                         </group>
@@ -517,13 +541,32 @@
                             <field name="boq_item_ids" context="{'default_sub_project_id': id}">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
+                                    <field name="item_code"/>
                                     <field name="work_type"/>
                                     <field name="work_sub_type"/>
+                                    <field name="description"/>
                                     <field name="qty"/>
                                     <field name="length"/>
                                     <field name="width"/>
                                     <field name="height"/>
                                     <field name="total_qty"/>
+                                    <field name="uom_id"/>
+                                    <field name="unit_rate"/>
+                                    <field name="total_amount"/>
+                                    <field name="executed_qty"/>
+                                    <field name="remaining_qty"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="measurements" string="Measurements">
+                            <field name="measurement_ids" context="{'default_project_id': project_id, 'default_sub_project_id': id}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="title"/>
+                                    <field name="length"/>
+                                    <field name="width"/>
+                                    <field name="area"/>
                                 </list>
                             </field>
                         </page>
@@ -534,17 +577,139 @@
         </field>
     </record>
 
+    <record id="view_tn_construction_sub_project_boq_list" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.boq.list</field>
+        <field name="model">tn.construction.sub.project.boq</field>
+        <field name="arch" type="xml">
+            <list string="BOQ Summary">
+                <field name="sequence" widget="handle"/>
+                <field name="item_code"/>
+                <field name="work_type"/>
+                <field name="work_sub_type"/>
+                <field name="description"/>
+                <field name="total_qty"/>
+                <field name="uom_id"/>
+                <field name="unit_rate"/>
+                <field name="total_amount"/>
+                <field name="executed_qty"/>
+                <field name="remaining_qty"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_sub_project_boq_form" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.boq.form</field>
+        <field name="model">tn.construction.sub.project.boq</field>
+        <field name="arch" type="xml">
+            <form string="BOQ Line" class="tn_construction_project_form">
+                <sheet>
+                    <group>
+                        <group string="Classification">
+                            <field name="sequence"/>
+                            <field name="item_code"/>
+                            <field name="work_type"/>
+                            <field name="work_sub_type"/>
+                            <field name="description"/>
+                        </group>
+                        <group string="Quantity">
+                            <field name="qty"/>
+                            <field name="length"/>
+                            <field name="width"/>
+                            <field name="height"/>
+                            <field name="total_qty" readonly="1"/>
+                            <field name="uom_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Costing &amp; Progress">
+                            <field name="unit_rate"/>
+                            <field name="total_amount" readonly="1"/>
+                            <field name="executed_qty"/>
+                            <field name="remaining_qty" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Links">
+                            <field name="project_id" string="Parent Project" readonly="1"/>
+                            <field name="sub_project_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_sub_project_boq_search" model="ir.ui.view">
+        <field name="name">tn.construction.sub.project.boq.search</field>
+        <field name="model">tn.construction.sub.project.boq</field>
+        <field name="arch" type="xml">
+            <search string="BOQ Summary">
+                <field name="project_id" string="Parent Project"/>
+                <field name="sub_project_id"/>
+                <field name="item_code"/>
+                <field name="description"/>
+                <field name="work_type"/>
+                <field name="work_sub_type"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_project" string="Parent Project" context="{'group_by': 'project_id'}"/>
+                    <filter name="group_sub_project" string="Sub Project" context="{'group_by': 'sub_project_id'}"/>
+                    <filter name="group_work_type" string="Work Type" context="{'group_by': 'work_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="view_tn_construction_measurement_list" model="ir.ui.view">
         <field name="name">tn.construction.measurement.list</field>
         <field name="model">tn.construction.measurement</field>
         <field name="arch" type="xml">
             <list string="Project Measurements">
                 <field name="project_id"/>
+                <field name="sub_project_id"/>
                 <field name="title"/>
                 <field name="length"/>
                 <field name="width"/>
                 <field name="area"/>
             </list>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_measurement_form" model="ir.ui.view">
+        <field name="name">tn.construction.measurement.form</field>
+        <field name="model">tn.construction.measurement</field>
+        <field name="arch" type="xml">
+            <form string="Measurement" class="tn_construction_project_form">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="sub_project_id"/>
+                            <field name="title"/>
+                        </group>
+                        <group>
+                            <field name="length"/>
+                            <field name="width"/>
+                            <field name="area"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tn_construction_measurement_search" model="ir.ui.view">
+        <field name="name">tn.construction.measurement.search</field>
+        <field name="model">tn.construction.measurement</field>
+        <field name="arch" type="xml">
+            <search string="Measurements">
+                <field name="project_id"/>
+                <field name="sub_project_id"/>
+                <field name="title"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_project" string="Parent Project" context="{'group_by': 'project_id'}"/>
+                    <filter name="group_sub_project" string="Sub Project" context="{'group_by': 'sub_project_id'}"/>
+                </group>
+            </search>
         </field>
     </record>
 
@@ -599,9 +764,10 @@
     </record>
 
     <record id="action_tn_construction_measurement" model="ir.actions.act_window">
-        <field name="name">Project Measurements</field>
+        <field name="name">Measurements</field>
         <field name="res_model">tn.construction.measurement</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_tn_construction_measurement_search"/>
     </record>
 
     <record id="action_tn_construction_permit" model="ir.actions.act_window">

@@ -27,12 +27,14 @@
                 <field name="sub_project_id"/>
                 <field name="work_order_id"/>
                 <field name="material_request_id"/>
+                <field name="project_warehouse_id"/>
                 <field name="state"/>
                 <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
                 <separator/>
                 <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                 <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                <filter string="Project Warehouse" name="group_project_warehouse" context="{'group_by': 'project_warehouse_id'}"/>
             </search>
         </field>
     </record>
@@ -46,6 +48,7 @@
                 <field name="date"/>
                 <field name="created_by_id" widget="many2one_avatar_user"/>
                 <field name="company_id"/>
+                <field name="project_warehouse_id"/>
                 <field name="state" string="Stage" widget="badge"
                        decoration-warning="state == 'in_progress'"
                        decoration-success="state == 'done'"
@@ -75,6 +78,7 @@
                             <field name="project_id" string="Site"/>
                             <field name="sub_project_id"/>
                             <field name="company_id"/>
+                            <field name="project_warehouse_id"/>
                         </group>
                         <group string="Other Details">
                             <field name="date"/>

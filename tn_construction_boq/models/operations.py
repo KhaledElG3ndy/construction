@@ -1,5 +1,5 @@
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class TnConstructionInternalTransfer(models.Model):
@@ -13,6 +13,12 @@ class TnConstructionInternalTransfer(models.Model):
     project_id = fields.Many2one('project.project', string='Site', required=True)
     sub_project_id = fields.Many2one('tn.construction.sub.project', string='Sub Project', domain="[('project_id', '=', project_id)]")
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company, required=True)
+    project_warehouse_id = fields.Many2one(
+        'stock.warehouse',
+        string='Project Warehouse',
+        domain="[('company_id', 'in', [company_id, False])]",
+        help='Default warehouse used for material movements, receipts, issues, and returns related to this project.',
+    )
     date = fields.Date(default=fields.Date.context_today, required=True)
     created_by_id = fields.Many2one('res.users', string='Created By', default=lambda self: self.env.user)
     work_type = fields.Char()
@@ -37,6 +43,44 @@ class TnConstructionInternalTransfer(models.Model):
         for vals in vals_list:
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('tn.construction.internal.transfer') or 'New'
+            order = self.env['tn.construction.work.order'].browse(vals.get('work_order_id'))
+            request = self.env['tn.construction.material.request'].browse(vals.get('material_request_id'))
+            project = self.env['project.project'].browse(vals.get('project_id'))
+            sub_project = self.env['tn.construction.sub.project'].browse(vals.get('sub_project_id'))
+            if request:
+                project = request.project_id
+                vals.setdefault('project_id', project.id)
+                vals.setdefault('sub_project_id', request.sub_project_id.id)
+                vals.setdefault('phase_id', request.phase_id.id)
+                vals.setdefault('work_order_id', request.work_order_id.id)
+                vals.setdefault('company_id', request.company_id.id)
+                vals.setdefault(
+                    'project_warehouse_id',
+                    (request.project_warehouse_id or project.project_warehouse_id).id,
+                )
+                vals.setdefault('work_type', request.work_type)
+            elif order:
+                project = order.project_id
+                vals.setdefault('project_id', project.id)
+                vals.setdefault('sub_project_id', order.sub_project_id.id)
+                vals.setdefault('phase_id', order.phase_id.id)
+                vals.setdefault('company_id', order.company_id.id)
+                vals.setdefault(
+                    'project_warehouse_id',
+                    (order.project_warehouse_id or project.project_warehouse_id).id,
+                )
+                vals.setdefault('work_type', order.work_type)
+            elif sub_project:
+                project = sub_project.project_id
+                vals.setdefault('project_id', project.id)
+                vals.setdefault('company_id', sub_project.company_id.id)
+                vals.setdefault(
+                    'project_warehouse_id',
+                    (sub_project.project_warehouse_id or project.project_warehouse_id).id,
+                )
+            elif project:
+                vals.setdefault('company_id', project.company_id.id)
+                vals.setdefault('project_warehouse_id', project.project_warehouse_id.id)
         return super().create(vals_list)
 
     @api.onchange('work_order_id')
@@ -49,6 +93,10 @@ class TnConstructionInternalTransfer(models.Model):
             transfer.sub_project_id = order.sub_project_id
             transfer.phase_id = order.phase_id
             transfer.company_id = order.company_id
+            transfer.project_warehouse_id = (
+                order.project_warehouse_id
+                or order.project_id.project_warehouse_id
+            )
             transfer.work_type = order.work_type
 
     @api.onchange('material_request_id')
@@ -62,7 +110,45 @@ class TnConstructionInternalTransfer(models.Model):
             transfer.phase_id = request.phase_id
             transfer.work_order_id = request.work_order_id
             transfer.company_id = request.company_id
+            transfer.project_warehouse_id = (
+                request.project_warehouse_id
+                or request.project_id.project_warehouse_id
+            )
             transfer.work_type = request.work_type
+
+    @api.onchange('project_id')
+    def _onchange_project_id_project_warehouse(self):
+        for transfer in self:
+            if transfer.project_id:
+                transfer.company_id = transfer.project_id.company_id
+                transfer.project_warehouse_id = transfer.project_id.project_warehouse_id
+
+    @api.onchange('sub_project_id')
+    def _onchange_sub_project_id_project_warehouse(self):
+        for transfer in self:
+            if transfer.sub_project_id:
+                transfer.project_id = transfer.sub_project_id.project_id
+                transfer.company_id = transfer.sub_project_id.company_id
+                transfer.project_warehouse_id = (
+                    transfer.sub_project_id.project_warehouse_id
+                    or transfer.project_id.project_warehouse_id
+                )
+
+    @api.constrains('project_warehouse_id', 'company_id')
+    def _check_project_warehouse_company(self):
+        for transfer in self:
+            warehouse_company = transfer.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != transfer.company_id:
+                raise ValidationError(
+                    _('The Project Warehouse must belong to the same company as the project.')
+                )
+
+    @api.onchange('company_id')
+    def _onchange_company_id_project_warehouse(self):
+        for transfer in self:
+            warehouse_company = transfer.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != transfer.company_id:
+                transfer.project_warehouse_id = False
 
     def action_set_in_progress(self):
         self.write({'state': 'in_progress'})
@@ -79,13 +165,16 @@ class TnConstructionInternalTransfer(models.Model):
             return self._action_open_picking()
         if not self.line_ids:
             raise UserError(_('Add at least one transfer line.'))
+        if not self.project_warehouse_id:
+            raise UserError(
+                _('Select a Project Warehouse on the project before creating stock movements.')
+            )
 
-        picking_type = self.env['stock.picking.type'].search([
+        warehouse = self.project_warehouse_id
+        picking_type = warehouse.int_type_id or self.env['stock.picking.type'].search([
             ('code', '=', 'internal'),
-            ('warehouse_id.company_id', '=', self.company_id.id),
-        ], limit=1) or self.env['stock.picking.type'].search([('code', '=', 'internal')], limit=1)
-
-        warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)], limit=1)
+            ('warehouse_id', '=', warehouse.id),
+        ], limit=1)
         stock_location = (
             warehouse.lot_stock_id
             or self.env.ref('stock.stock_location_stock', raise_if_not_found=False)

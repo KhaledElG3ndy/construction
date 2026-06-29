@@ -46,10 +46,92 @@
                         <p t-esc="text.dashboardSubtitle"/>
                     </div>
                     <div class="tn_cd_header_tools">
-                        <span><i class="fa fa-calendar-o"/> <t t-esc="dateRangeLabel"/></span>
-                        <span><i class="fa fa-sliders"/> <t t-esc="text.filters"/></span>
+                        <div class="tn_cd_tool_wrap">
+                            <button type="button" class="tn_cd_tool_button" t-on-click="toggleDatePanel">
+                                <i class="fa fa-calendar-o"/> <t t-esc="dateRangeLabel"/>
+                            </button>
+                            <div class="tn_cd_dropdown tn_cd_date_dropdown" t-if="state.datePanelOpen">
+                                <div class="tn_cd_preset_grid">
+                                    <t t-foreach="datePresets" t-as="preset" t-key="preset.key">
+                                        <button type="button"
+                                                t-att-data-preset="preset.key"
+                                                t-att-class="'tn_cd_filter_pill' + (state.filters.datePreset === preset.key ? ' is-active' : '')"
+                                                t-on-click="onDatePresetClick"
+                                                t-esc="preset.label"/>
+                                    </t>
+                                </div>
+                                <div class="tn_cd_date_inputs">
+                                    <label>
+                                        <span t-esc="text.from"/>
+                                        <input type="date" t-att-value="state.filters.dateFrom" t-on-change="onDateFromChange"/>
+                                    </label>
+                                    <label>
+                                        <span t-esc="text.to"/>
+                                        <input type="date" t-att-value="state.filters.dateTo" t-on-change="onDateToChange"/>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tn_cd_tool_wrap">
+                            <button type="button" class="tn_cd_tool_button" t-on-click="toggleFilterPanel">
+                                <i class="fa fa-sliders"/> <t t-esc="text.filters"/>
+                                <strong t-if="activeFilterCount" t-esc="activeFilterCount"/>
+                            </button>
+                            <div class="tn_cd_dropdown tn_cd_filter_dropdown" t-if="state.filterPanelOpen">
+                                <div class="tn_cd_filter_grid">
+                                    <label>
+                                        <span t-esc="text.project"/>
+                                        <select t-on-change="onProjectChange">
+                                            <option value="" t-att-selected="!state.filters.projectId ? true : undefined" t-esc="text.allProjects"/>
+                                            <t t-foreach="state.filterOptions.projects" t-as="project" t-key="project.id">
+                                                <option t-att-value="project.id"
+                                                        t-att-selected="state.filters.projectId === project.id ? true : undefined"
+                                                        t-esc="project.display_name || project.name"/>
+                                            </t>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        <span t-esc="text.subProject"/>
+                                        <select t-on-change="onSubProjectChange">
+                                            <option value="" t-att-selected="!state.filters.subProjectId ? true : undefined" t-esc="text.allSubProjects"/>
+                                            <t t-foreach="filteredSubProjects" t-as="subProject" t-key="subProject.id">
+                                                <option t-att-value="subProject.id"
+                                                        t-att-selected="state.filters.subProjectId === subProject.id ? true : undefined"
+                                                        t-esc="subProject.display_name || subProject.name"/>
+                                            </t>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        <span t-esc="text.stage"/>
+                                        <select t-on-change="onStageChange">
+                                            <option value="" t-att-selected="!state.filters.stage ? true : undefined" t-esc="text.allStages"/>
+                                            <t t-foreach="stageOptions" t-as="stage" t-key="stage.key">
+                                                <option t-att-value="stage.key"
+                                                        t-att-selected="state.filters.stage === stage.key ? true : undefined"
+                                                        t-esc="stage.label"/>
+                                            </t>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="tn_cd_filter_actions">
+                                    <button type="button" t-on-click="resetFilters">
+                                        <i class="fa fa-undo"/> <t t-esc="text.resetFilters"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </header>
+
+                <div class="tn_cd_active_filters" t-if="activeFilterChips.length">
+                    <t t-foreach="activeFilterChips" t-as="chip" t-key="chip.key">
+                        <button type="button" t-att-data-filter="chip.key" t-on-click="onRemoveFilter">
+                            <span t-esc="chip.label"/>
+                            <i class="fa fa-times"/>
+                        </button>
+                    </t>
+                    <span t-if="state.refreshing" class="tn_cd_refreshing"><i class="fa fa-circle-o-notch fa-spin"/></span>
+                </div>
 
                 <section>
                     <t t-call="tn_construction_dashboard.SectionTitle">

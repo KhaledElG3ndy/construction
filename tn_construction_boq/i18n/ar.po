@@ -1,0 +1,249 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* tn_construction_boq
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-28 00:00+0000\n"
+"PO-Revision-Date: 2026-06-28 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,field_description:tn_construction_boq.field_project_project__project_warehouse_id
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_internal_transfer__project_warehouse_id
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_material_request__project_warehouse_id
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_sub_project__project_warehouse_id
+#: model:ir.model.fields,field_description:tn_construction_boq.field_tn_construction_work_order__project_warehouse_id
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_internal_transfer_search
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_material_request_search
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_sub_project_search
+#: model_terms:ir.ui.view,arch_db:tn_construction_boq.view_tn_construction_work_order_search
+msgid "Project Warehouse"
+msgstr "مخزن المشروع"
+
+#. module: tn_construction_boq
+#: model:ir.model.fields,help:tn_construction_boq.field_project_project__project_warehouse_id
+#: model:ir.model.fields,help:tn_construction_boq.field_tn_construction_internal_transfer__project_warehouse_id
+#: model:ir.model.fields,help:tn_construction_boq.field_tn_construction_material_request__project_warehouse_id
+#: model:ir.model.fields,help:tn_construction_boq.field_tn_construction_sub_project__project_warehouse_id
+#: model:ir.model.fields,help:tn_construction_boq.field_tn_construction_work_order__project_warehouse_id
+msgid "Default warehouse used for material movements, receipts, issues, and returns related to this project."
+msgstr "المخزن الافتراضي المستخدم لحركات المواد والاستلامات والصرف والمرتجعات المتعلقة بهذا المشروع."
+
+#. module: tn_construction_boq
+#: code:addons/tn_construction_boq/models/operations.py:0
+#, python-format
+msgid "Select a Project Warehouse on the project before creating stock movements."
+msgstr "حدد مخزن المشروع على المشروع قبل إنشاء حركات المخزون."
+
+#. module: tn_construction_boq
+#: code:addons/tn_construction_boq/models/execution.py:0
+#: code:addons/tn_construction_boq/models/operations.py:0
+#: code:addons/tn_construction_boq/models/project_project.py:0
+#, python-format
+msgid "The Project Warehouse must belong to the same company as the project."
+msgstr "يجب أن يكون مخزن المشروع تابعا لنفس شركة المشروع."
+
+#. module: tn_construction_boq
+msgid "Parent Project"
+msgstr "المشروع الرئيسي"
+
+#. module: tn_construction_boq
+msgid "Project Code"
+msgstr "كود المشروع"
+
+#. module: tn_construction_boq
+msgid "Sub Project Code"
+msgstr "كود المشروع الفرعي"
+
+#. module: tn_construction_boq
+msgid "Sub Project Name"
+msgstr "اسم المشروع الفرعي"
+
+#. module: tn_construction_boq
+msgid "Customer / Client"
+msgstr "العميل"
+
+#. module: tn_construction_boq
+msgid "Project Manager"
+msgstr "مدير المشروع"
+
+#. module: tn_construction_boq
+msgid "Analytic Account / Cost Center"
+msgstr "الحساب التحليلي / مركز التكلفة"
+
+#. module: tn_construction_boq
+msgid "Contract Reference"
+msgstr "مرجع العقد"
+
+#. module: tn_construction_boq
+msgid "Contract Value"
+msgstr "قيمة العقد"
+
+#. module: tn_construction_boq
+msgid "Planned Start Date"
+msgstr "تاريخ البداية المخطط"
+
+#. module: tn_construction_boq
+msgid "Planned End Date"
+msgstr "تاريخ النهاية المخطط"
+
+#. module: tn_construction_boq
+msgid "Actual Start Date"
+msgstr "تاريخ البداية الفعلي"
+
+#. module: tn_construction_boq
+msgid "Actual End Date"
+msgstr "تاريخ النهاية الفعلي"
+
+#. module: tn_construction_boq
+msgid "Overall Progress"
+msgstr "نسبة الإنجاز الإجمالية"
+
+#. module: tn_construction_boq
+msgid "Responsible Engineer"
+msgstr "المهندس المسؤول"
+
+#. module: tn_construction_boq
+msgid "Sub Project Site Location"
+msgstr "موقع المشروع الفرعي"
+
+#. module: tn_construction_boq
+msgid "Zone / Block / Floor"
+msgstr "المنطقة / البلوك / الطابق"
+
+#. module: tn_construction_boq
+msgid "Project Management"
+msgstr "إدارة المشروع"
+
+#. module: tn_construction_boq
+msgid "Contract"
+msgstr "العقد"
+
+#. module: tn_construction_boq
+msgid "Planning"
+msgstr "التخطيط"
+
+#. module: tn_construction_boq
+msgid "Execution"
+msgstr "التنفيذ"
+
+#. module: tn_construction_boq
+msgid "Schedule & Progress"
+msgstr "الجدول الزمني ونسبة الإنجاز"
+
+#. module: tn_construction_boq
+msgid "Map Location"
+msgstr "موقع الخريطة"
+
+#. module: tn_construction_boq
+msgid "Stakeholders"
+msgstr "أصحاب العلاقة"
+
+#. module: tn_construction_boq
+msgid "BOQ Summary"
+msgstr "ملخص جدول الكميات"
+
+#. module: tn_construction_boq
+msgid "Budget Summary"
+msgstr "ملخص الميزانية"
+
+#. module: tn_construction_boq
+msgid "Work Orders"
+msgstr "أوامر العمل"
+
+#. module: tn_construction_boq
+msgid "Material Requisitions"
+msgstr "طلبات المواد"
+
+#. module: tn_construction_boq
+msgid "Progress Bills"
+msgstr "مستخلصات الإنجاز"
+
+#. module: tn_construction_boq
+msgid "Inspection Tasks"
+msgstr "مهام الفحص"
+
+#. module: tn_construction_boq
+msgid "Purchase Orders"
+msgstr "أوامر الشراء"
+
+#. module: tn_construction_boq
+msgid "Stock Transfers"
+msgstr "تحويلات المخزون"
+
+#. module: tn_construction_boq
+msgid "Measurements"
+msgstr "القياسات"
+
+#. module: tn_construction_boq
+msgid "BOQ Item Code"
+msgstr "كود بند المقايسة"
+
+#. module: tn_construction_boq
+msgid "Description"
+msgstr "الوصف"
+
+#. module: tn_construction_boq
+msgid "UoM"
+msgstr "وحدة القياس"
+
+#. module: tn_construction_boq
+msgid "Unit Rate"
+msgstr "سعر الوحدة"
+
+#. module: tn_construction_boq
+msgid "Total Amount"
+msgstr "إجمالي القيمة"
+
+#. module: tn_construction_boq
+msgid "Executed Qty"
+msgstr "الكمية المنفذة"
+
+#. module: tn_construction_boq
+msgid "Remaining Qty"
+msgstr "الكمية المتبقية"
+
+#. module: tn_construction_boq
+msgid "Sub Project"
+msgstr "المشروع الفرعي"
+
+#. module: tn_construction_boq
+msgid "Classification"
+msgstr "التصنيف"
+
+#. module: tn_construction_boq
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: tn_construction_boq
+msgid "Costing & Progress"
+msgstr "التكلفة والإنجاز"
+
+#. module: tn_construction_boq
+msgid "Links"
+msgstr "الروابط"
+
+#. module: tn_construction_boq
+msgid "Total Qty cannot be negative."
+msgstr "لا يمكن أن تكون الكمية الإجمالية سالبة."
+
+#. module: tn_construction_boq
+msgid "Unit Rate cannot be negative."
+msgstr "لا يمكن أن يكون سعر الوحدة سالبا."
+
+#. module: tn_construction_boq
+msgid "Executed Qty cannot be negative."
+msgstr "لا يمكن أن تكون الكمية المنفذة سالبة."
+
+#. module: tn_construction_boq
+msgid "Executed Qty cannot be greater than Total Qty."
+msgstr "لا يمكن أن تكون الكمية المنفذة أكبر من الكمية الإجمالية."

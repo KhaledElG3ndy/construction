@@ -1,4 +1,5 @@
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class ProjectProject(models.Model):
@@ -18,6 +19,20 @@ class ProjectProject(models.Model):
         'res.company',
         string='Warehouse',
         default=lambda self: self.env.company,
+    )
+    project_code = fields.Char(string='Project Code', copy=False)
+    contract_reference = fields.Char(string='Contract Reference')
+    contract_value = fields.Monetary(
+        string='Contract Value',
+        currency_field='currency_id',
+    )
+    actual_start_date = fields.Date(string='Actual Start Date')
+    actual_end_date = fields.Date(string='Actual End Date')
+    project_warehouse_id = fields.Many2one(
+        'stock.warehouse',
+        string='Project Warehouse',
+        domain="[('company_id', 'in', [company_id, False])]",
+        help='Default warehouse used for material movements, receipts, issues, and returns related to this project.',
     )
     address_street = fields.Char(string='Street')
     address_street2 = fields.Char(string='Street 2')
@@ -85,6 +100,42 @@ class ProjectProject(models.Model):
         string='Progress Billing',
         compute='_compute_construction_counts',
     )
+    construction_boq_summary_count = fields.Integer(
+        string='BOQ Summary',
+        compute='_compute_construction_counts',
+    )
+    construction_budget_summary_count = fields.Integer(
+        string='Budget Summary',
+        compute='_compute_construction_counts',
+    )
+    construction_work_order_count = fields.Integer(
+        string='Work Orders',
+        compute='_compute_construction_counts',
+    )
+    construction_material_requisition_count = fields.Integer(
+        string='Material Requisitions',
+        compute='_compute_construction_counts',
+    )
+    construction_task_count = fields.Integer(
+        string='Tasks',
+        compute='_compute_construction_counts',
+    )
+    construction_inspection_task_count = fields.Integer(
+        string='Inspection Tasks',
+        compute='_compute_construction_counts',
+    )
+    construction_purchase_order_count = fields.Integer(
+        string='Purchase Orders',
+        compute='_compute_construction_counts',
+    )
+    construction_stock_transfer_count = fields.Integer(
+        string='Stock Transfers',
+        compute='_compute_construction_counts',
+    )
+    construction_measurement_count = fields.Integer(
+        string='Measurements',
+        compute='_compute_construction_counts',
+    )
 
     @api.depends('boq_line_ids')
     def _compute_boq_line_count(self):
@@ -105,15 +156,54 @@ class ProjectProject(models.Model):
     def _compute_construction_counts(self):
         attachment = self.env['ir.attachment'].sudo()
         purchase_order = self.env['purchase.order']
+        Boq = self.env['tn.construction.sub.project.boq']
+        BudgetLine = self.env['tn.construction.budget.line']
+        WorkOrder = self.env['tn.construction.work.order']
+        MaterialRequest = self.env['tn.construction.material.request']
+        Task = self.env['project.task']
+        InternalTransfer = self.env['tn.construction.internal.transfer']
+        Measurement = self.env['tn.construction.measurement']
         for project in self:
+            sub_project_ids = project.construction_sub_project_ids.ids
+            project_domain = [('project_id', '=', project.id)]
+            sub_project_domain = [('sub_project_id', 'in', sub_project_ids)]
             project.construction_sub_project_count = len(project.construction_sub_project_ids)
             project.document_count = attachment.search_count([
                 ('res_model', '=', project._name),
                 ('res_id', '=', project.id),
             ])
-            project.progress_billing_count = purchase_order.search_count([
-                ('project_id', '=', project.id),
-            ]) if 'project_id' in purchase_order._fields else 0
+            project.construction_boq_summary_count = Boq.search_count(sub_project_domain)
+            project.construction_budget_summary_count = BudgetLine.search_count(project_domain)
+            project.construction_work_order_count = WorkOrder.search_count(project_domain)
+            project.construction_material_requisition_count = MaterialRequest.search_count(project_domain)
+            project.construction_task_count = Task.search_count(project_domain)
+            project.construction_inspection_task_count = Task.search_count(
+                project_domain + [('name', 'ilike', 'inspection')]
+            )
+            project.construction_stock_transfer_count = InternalTransfer.search_count(project_domain)
+            project.construction_measurement_count = Measurement.search_count(project_domain)
+            project.construction_purchase_order_count = (
+                purchase_order.search_count(project_domain)
+                if 'project_id' in purchase_order._fields
+                else 0
+            )
+            project.progress_billing_count = project.construction_purchase_order_count
+
+    @api.constrains('project_warehouse_id', 'company_id')
+    def _check_project_warehouse_company(self):
+        for project in self:
+            warehouse_company = project.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != project.company_id:
+                raise ValidationError(
+                    _('The Project Warehouse must belong to the same company as the project.')
+                )
+
+    @api.onchange('company_id')
+    def _onchange_company_id_project_warehouse(self):
+        for project in self:
+            warehouse_company = project.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != project.company_id:
+                project.project_warehouse_id = False
 
     def action_construction_set_in_progress(self):
         self.write({'construction_state': 'in_progress'})
@@ -132,6 +222,7 @@ class ProjectProject(models.Model):
             'context': {
                 'default_project_id': self.id,
                 'default_company_id': self.company_id.id,
+                'default_project_warehouse_id': self.project_warehouse_id.id,
             },
         }
 
@@ -141,6 +232,28 @@ class ProjectProject(models.Model):
             'type': 'ir.actions.act_window',
             'name': 'BOQ Budget Control',
             'res_model': 'tn.boq.line',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_boq_summary(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('BOQ Summary'),
+            'res_model': 'tn.construction.sub.project.boq',
+            'view_mode': 'list,form',
+            'domain': [('sub_project_id', 'in', self.construction_sub_project_ids.ids)],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_budget_summary(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Budget Summary'),
+            'res_model': 'tn.construction.budget.line',
             'view_mode': 'list,form',
             'domain': [('project_id', '=', self.id)],
             'context': {'default_project_id': self.id},
@@ -157,6 +270,7 @@ class ProjectProject(models.Model):
             'context': {
                 'default_project_id': self.id,
                 'default_company_id': self.company_id.id,
+                'default_project_warehouse_id': self.project_warehouse_id.id,
             },
         }
 
@@ -195,6 +309,83 @@ class ProjectProject(models.Model):
             'context': {'default_project_id': self.id},
         }
 
+    def action_view_project_work_orders(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Work Orders'),
+            'res_model': 'tn.construction.work.order',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_project_material_requisitions(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Material Requisitions'),
+            'res_model': 'tn.construction.material.request',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_construction_tasks(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Tasks'),
+            'res_model': 'project.task',
+            'view_mode': 'list,kanban,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_construction_inspection_tasks(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Inspection Tasks'),
+            'res_model': 'project.task',
+            'view_mode': 'list,kanban,form',
+            'domain': [('project_id', '=', self.id), ('name', 'ilike', 'inspection')],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_project_purchase_orders(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Orders'),
+            'res_model': 'purchase.order',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)] if 'project_id' in self.env['purchase.order']._fields else [],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_project_stock_transfers(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Stock Transfers'),
+            'res_model': 'tn.construction.internal.transfer',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {'default_project_id': self.id},
+        }
+
+    def action_view_project_measurements(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Measurements'),
+            'res_model': 'tn.construction.measurement',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {'default_project_id': self.id},
+        }
+
     def action_view_project_gantt(self):
         self.ensure_one()
         return {
@@ -214,12 +405,17 @@ class TnConstructionSubProject(models.Model):
     _order = 'sequence, id'
 
     sequence = fields.Integer(default=10)
-    name = fields.Char(string='Title', required=True)
+    name = fields.Char(string='Sub Project Name', required=True)
     code = fields.Char(copy=False)
-    project_id = fields.Many2one('project.project', required=True, ondelete='cascade')
+    project_id = fields.Many2one(
+        'project.project',
+        string='Parent Project',
+        required=True,
+        ondelete='cascade',
+    )
     related_project_id = fields.Many2one(
         'project.project',
-        string='Project',
+        string='Legacy Project',
         default=lambda self: self.env.context.get('default_project_id'),
     )
     company_id = fields.Many2one(
@@ -231,6 +427,12 @@ class TnConstructionSubProject(models.Model):
         'res.company',
         string='Warehouse',
         default=lambda self: self.env.company,
+    )
+    project_warehouse_id = fields.Many2one(
+        'stock.warehouse',
+        string='Project Warehouse',
+        domain="[('company_id', 'in', [company_id, False])]",
+        help='Default warehouse used for material movements, receipts, issues, and returns related to this project.',
     )
     budget_id = fields.Many2one(
         'tn.construction.budget',
@@ -251,6 +453,13 @@ class TnConstructionSubProject(models.Model):
     )
     schedule_start_date = fields.Date(string='Schedule Start Date')
     schedule_end_date = fields.Date(string='Schedule End Date')
+    actual_start_date = fields.Date(string='Actual Start Date')
+    actual_end_date = fields.Date(string='Actual End Date')
+    responsible_engineer_id = fields.Many2one(
+        'res.partner',
+        string='Responsible Engineer',
+    )
+    site_zone = fields.Char(string='Zone / Block / Floor')
     progress = fields.Float(string='Progress (%)')
     address_street = fields.Char(string='Street')
     address_street2 = fields.Char(string='Street 2')
@@ -293,6 +502,13 @@ class TnConstructionSubProject(models.Model):
         'sub_project_id',
         string='BOQ',
     )
+    measurement_ids = fields.One2many(
+        'tn.construction.measurement',
+        'sub_project_id',
+        string='Measurements',
+    )
+    boq_count = fields.Integer(compute='_compute_link_counts')
+    measurement_count = fields.Integer(compute='_compute_link_counts')
     progress_billing_count = fields.Integer(compute='_compute_link_counts')
     budget_line_count = fields.Integer(compute='_compute_link_counts')
     work_order_count = fields.Integer(compute='_compute_link_counts')
@@ -311,6 +527,7 @@ class TnConstructionSubProject(models.Model):
             sub_project.related_project_id = project
             sub_project.company_id = project.company_id
             sub_project.warehouse_id = project.warehouse_id or project.company_id
+            sub_project.project_warehouse_id = project.project_warehouse_id
             sub_project.address_street = project.address_street
             sub_project.address_street2 = project.address_street2
             sub_project.address_city = project.address_city
@@ -322,27 +539,47 @@ class TnConstructionSubProject(models.Model):
             sub_project.schedule_start_date = project.date_start
             sub_project.schedule_end_date = project.date
 
+    @api.constrains('project_warehouse_id', 'company_id')
+    def _check_project_warehouse_company(self):
+        for sub_project in self:
+            warehouse_company = sub_project.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != sub_project.company_id:
+                raise ValidationError(
+                    _('The Project Warehouse must belong to the same company as the project.')
+                )
+
+    @api.onchange('company_id')
+    def _onchange_company_id_project_warehouse(self):
+        for sub_project in self:
+            warehouse_company = sub_project.project_warehouse_id.company_id
+            if warehouse_company and warehouse_company != sub_project.company_id:
+                sub_project.project_warehouse_id = False
+
     def _compute_link_counts(self):
         PurchaseOrder = self.env['purchase.order']
+        BudgetLine = self.env['tn.construction.budget.line']
+        WorkOrder = self.env['tn.construction.work.order']
+        MaterialRequest = self.env['tn.construction.material.request']
+        Phase = self.env['tn.construction.phase']
+        Task = self.env['project.task']
+        Measurement = self.env['tn.construction.measurement']
         for sub_project in self:
-            task_domain = [
-                ('project_id', '=', sub_project.project_id.id),
-            ]
+            task_domain = [('construction_sub_project_id', '=', sub_project.id)]
             purchase_project_domain = (
                 [('project_id', '=', sub_project.project_id.id)]
                 if 'project_id' in PurchaseOrder._fields
                 else []
             )
-            sub_project.budget_line_count = len(sub_project.project_id.boq_line_ids)
-            sub_project.task_count = self.env['project.task'].search_count(task_domain)
-            sub_project.work_order_count = sub_project.task_count
-            sub_project.inspection_task_count = self.env['project.task'].search_count(
+            sub_project.boq_count = len(sub_project.boq_item_ids)
+            sub_project.budget_line_count = BudgetLine.search_count([('sub_project_id', '=', sub_project.id)])
+            sub_project.work_order_count = WorkOrder.search_count([('sub_project_id', '=', sub_project.id)])
+            sub_project.material_requisition_count = MaterialRequest.search_count([('sub_project_id', '=', sub_project.id)])
+            sub_project.task_count = Task.search_count(task_domain)
+            sub_project.inspection_task_count = Task.search_count(
                 task_domain + [('name', 'ilike', 'inspection')]
             )
-            sub_project.phase_count = self.env['project.milestone'].search_count(task_domain)
-            sub_project.material_requisition_count = PurchaseOrder.search_count([
-                ('state', 'in', ('draft', 'sent', 'to approve')),
-            ] + purchase_project_domain)
+            sub_project.phase_count = Phase.search_count([('sub_project_id', '=', sub_project.id)])
+            sub_project.measurement_count = Measurement.search_count([('sub_project_id', '=', sub_project.id)])
             sub_project.purchase_order_count = PurchaseOrder.search_count(purchase_project_domain)
             sub_project.progress_billing_count = PurchaseOrder.search_count(purchase_project_domain)
 
@@ -352,7 +589,7 @@ class TnConstructionSubProject(models.Model):
 
     def action_view_budget_analysis(self):
         self.ensure_one()
-        return self.project_id.action_view_boq_lines()
+        return self.action_view_budget_lines()
 
     def action_view_progress_bills(self):
         self.ensure_one()
@@ -372,8 +609,11 @@ class TnConstructionSubProject(models.Model):
             'name': _('Tasks'),
             'res_model': 'project.task',
             'view_mode': 'list,kanban,form',
-            'domain': self._project_domain(),
-            'context': {'default_project_id': self.project_id.id},
+            'domain': [('construction_sub_project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.project_id.id,
+                'default_construction_sub_project_id': self.id,
+            },
         }
 
     def action_view_inspection_tasks(self):
@@ -383,8 +623,11 @@ class TnConstructionSubProject(models.Model):
             'name': _('Inspection Tasks'),
             'res_model': 'project.task',
             'view_mode': 'list,kanban,form',
-            'domain': self._project_domain() + [('name', 'ilike', 'inspection')],
-            'context': {'default_project_id': self.project_id.id},
+            'domain': [('construction_sub_project_id', '=', self.id), ('name', 'ilike', 'inspection')],
+            'context': {
+                'default_project_id': self.project_id.id,
+                'default_construction_sub_project_id': self.id,
+            },
         }
 
     def action_view_project_phases(self):
@@ -392,10 +635,13 @@ class TnConstructionSubProject(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': _('Project Phases (WBS)'),
-            'res_model': 'project.milestone',
+            'res_model': 'tn.construction.phase',
             'view_mode': 'list,form',
-            'domain': self._project_domain(),
-            'context': {'default_project_id': self.project_id.id},
+            'domain': [('sub_project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.project_id.id,
+                'default_sub_project_id': self.id,
+            },
         }
 
     def action_view_work_orders(self):
@@ -403,10 +649,59 @@ class TnConstructionSubProject(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': _('Work Orders'),
-            'res_model': 'project.task',
-            'view_mode': 'list,kanban,form',
-            'domain': self._project_domain(),
-            'context': {'default_project_id': self.project_id.id},
+            'res_model': 'tn.construction.work.order',
+            'view_mode': 'list,form',
+            'domain': [('sub_project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.project_id.id,
+                'default_sub_project_id': self.id,
+                'default_company_id': self.company_id.id,
+                'default_project_warehouse_id': self.project_warehouse_id.id,
+            },
+        }
+
+    def action_view_material_requisitions(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Material Requisitions'),
+            'res_model': 'tn.construction.material.request',
+            'view_mode': 'list,form',
+            'domain': [('sub_project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.project_id.id,
+                'default_sub_project_id': self.id,
+                'default_company_id': self.company_id.id,
+                'default_project_warehouse_id': self.project_warehouse_id.id,
+            },
+        }
+
+    def action_view_boq_items(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('BOQ'),
+            'res_model': 'tn.construction.sub.project.boq',
+            'view_mode': 'list,form',
+            'domain': [('sub_project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.project_id.id,
+                'default_sub_project_id': self.id,
+            },
+        }
+
+    def action_view_measurements(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Measurements'),
+            'res_model': 'tn.construction.measurement',
+            'view_mode': 'list,form',
+            'domain': [('sub_project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.project_id.id,
+                'default_sub_project_id': self.id,
+            },
         }
 
     def action_view_work_order_po(self):
@@ -464,6 +759,7 @@ class TnConstructionSubProject(models.Model):
                 vals.setdefault('related_project_id', project.id)
                 vals.setdefault('company_id', project.company_id.id)
                 vals.setdefault('warehouse_id', (project.warehouse_id or project.company_id).id)
+                vals.setdefault('project_warehouse_id', project.project_warehouse_id.id)
                 vals.setdefault('address_street', project.address_street)
                 vals.setdefault('address_street2', project.address_street2)
                 vals.setdefault('address_city', project.address_city)
@@ -578,26 +874,70 @@ class TnConstructionSubProjectBoq(models.Model):
     _order = 'sequence, id'
 
     sequence = fields.Integer(default=10)
+    item_code = fields.Char(string='BOQ Item Code', copy=False)
     sub_project_id = fields.Many2one(
         'tn.construction.sub.project',
         required=True,
         ondelete='cascade',
+        string='Sub Project',
+    )
+    project_id = fields.Many2one(
+        'project.project',
+        related='sub_project_id.project_id',
+        store=True,
+        readonly=True,
+        string='Parent Project',
     )
     work_type = fields.Char(string='Work Type', required=True)
     work_sub_type = fields.Char(string='Work Sub Type')
+    description = fields.Text(string='Description')
     qty = fields.Float(string='Qty.', default=1.0)
     length = fields.Float()
     width = fields.Float()
     height = fields.Float()
-    total_qty = fields.Float(string='Total Qty.', compute='_compute_total_qty', store=True)
+    total_qty = fields.Float(string='Total Qty.', compute='_compute_totals', store=True)
+    uom_id = fields.Many2one('uom.uom', string='UoM')
+    unit_rate = fields.Monetary(string='Unit Rate', currency_field='currency_id')
+    total_amount = fields.Monetary(
+        string='Total Amount',
+        compute='_compute_totals',
+        store=True,
+        currency_field='currency_id',
+    )
+    executed_qty = fields.Float(string='Executed Qty')
+    remaining_qty = fields.Float(
+        string='Remaining Qty',
+        compute='_compute_totals',
+        store=True,
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        related='sub_project_id.company_id.currency_id',
+        readonly=True,
+    )
 
-    @api.depends('qty', 'length', 'width', 'height', 'sub_project_id.use_lwh')
-    def _compute_total_qty(self):
+    @api.depends('qty', 'length', 'width', 'height', 'unit_rate', 'executed_qty')
+    def _compute_totals(self):
         for line in self:
-            if line.sub_project_id.use_lwh:
-                line.total_qty = line.qty * line.length * line.width * line.height
-            else:
-                line.total_qty = line.qty
+            total_qty = line.qty
+            for dimension in (line.length, line.width, line.height):
+                if dimension:
+                    total_qty *= dimension
+            line.total_qty = total_qty
+            line.total_amount = line.total_qty * line.unit_rate
+            line.remaining_qty = line.total_qty - line.executed_qty
+
+    @api.constrains('total_qty', 'unit_rate', 'executed_qty')
+    def _check_boq_quantities_and_rates(self):
+        for line in self:
+            if line.total_qty < 0:
+                raise ValidationError(_('Total Qty cannot be negative.'))
+            if line.unit_rate < 0:
+                raise ValidationError(_('Unit Rate cannot be negative.'))
+            if line.executed_qty < 0:
+                raise ValidationError(_('Executed Qty cannot be negative.'))
+            if line.executed_qty > line.total_qty:
+                raise ValidationError(_('Executed Qty cannot be greater than Total Qty.'))
 
 
 class TnConstructionStakeholder(models.Model):
@@ -633,6 +973,11 @@ class TnConstructionMeasurement(models.Model):
 
     sequence = fields.Integer(default=10)
     project_id = fields.Many2one('project.project', required=True, ondelete='cascade')
+    sub_project_id = fields.Many2one(
+        'tn.construction.sub.project',
+        string='Sub Project',
+        domain="[('project_id', '=', project_id)]",
+    )
     title = fields.Char(required=True)
     length = fields.Float(string='Length(m)')
     width = fields.Float(string='Width(m)')
@@ -642,6 +987,20 @@ class TnConstructionMeasurement(models.Model):
     def _compute_area(self):
         for measurement in self:
             measurement.area = measurement.length * measurement.width
+
+    @api.onchange('sub_project_id')
+    def _onchange_sub_project_id(self):
+        for measurement in self:
+            if measurement.sub_project_id:
+                measurement.project_id = measurement.sub_project_id.project_id
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            sub_project = self.env['tn.construction.sub.project'].browse(vals.get('sub_project_id'))
+            if sub_project:
+                vals.setdefault('project_id', sub_project.project_id.id)
+        return super().create(vals_list)
 
 
 class TnConstructionPermit(models.Model):

@@ -167,6 +167,7 @@
                 <field name="end_date"/>
                 <field name="phase_id"/>
                 <field name="company_id"/>
+                <field name="project_warehouse_id"/>
                 <field name="sub_project_id"/>
                 <field name="state" widget="badge"/>
                 <button name="action_create_material_request" type="object" string="Create Consume Order" class="btn-primary"/>
@@ -183,10 +184,12 @@
                 <field name="name"/>
                 <field name="phase_id"/>
                 <field name="sub_project_id"/>
+                <field name="project_warehouse_id"/>
                 <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
                     <filter name="group_phase" string="Project Phase(WBS)" context="{'group_by': 'phase_id'}"/>
+                    <filter name="group_project_warehouse" string="Project Warehouse" context="{'group_by': 'project_warehouse_id'}"/>
                 </group>
             </search>
         </field>
@@ -216,7 +219,7 @@
                             <field name="project_id"/>
                             <field name="sub_project_id"/>
                             <field name="company_id"/>
-                            <field name="warehouse_id"/>
+                            <field name="project_warehouse_id"/>
                         </group>
                         <group string="Other Details">
                             <field name="start_date"/>
@@ -329,6 +332,7 @@
                 <field name="sequence_code"/>
                 <field name="date"/>
                 <field name="company_id"/>
+                <field name="project_warehouse_id"/>
                 <field name="sub_project_id"/>
                 <field name="created_by_id" widget="many2one_avatar_user" string="Created By"/>
                 <field name="state" widget="badge"/>
@@ -344,10 +348,12 @@
                 <field name="sequence_code"/>
                 <field name="project_id"/>
                 <field name="sub_project_id"/>
+                <field name="project_warehouse_id"/>
                 <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_status" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_sub_project" string="Sub Project" context="{'group_by': 'sub_project_id'}"/>
+                    <filter name="group_project_warehouse" string="Project Warehouse" context="{'group_by': 'project_warehouse_id'}"/>
                 </group>
                 <searchpanel>
                     <field name="state" string="Status"/>
@@ -374,8 +380,8 @@
                         <group string="Project Details">
                             <field name="project_id"/>
                             <field name="sub_project_id"/>
-                            <field name="warehouse_id"/>
                             <field name="company_id"/>
+                            <field name="project_warehouse_id"/>
                         </group>
                         <group string="Other Details">
                             <field name="date"/>
